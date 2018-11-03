@@ -1,0 +1,44 @@
+@import "colors.scss";
+
+.header{
+    overflow: auto;
+
+    &_logo{
+        height: 5em;
+        float: left;
+    }
+
+    &__title{
+        font-size: 2em;
+        float: left;
+        margin-left: 1em;
+        margin-top: 1.5rem;
+    }
+
+    &__languageSelector{
+        float: right;
+        margin: 0.3em;
+        background: $bg;
+        padding: 0.5em;
+        border-radius: 1em;
+
+        &__select{
+            border-radius: 0.5em;
+        }
+    }
+
+    &__break{
+        clear: both;
+    }
+}
+
+.footer{
+    background: $bg;
+    border: 1px solid $bord;
+    border-radius: 1em;
+    margin: 30em auto 2em auto;
+    width: 80%;
+    padding: 2em;
+    font-size: 0.8em;
+    text-align: center;
+}

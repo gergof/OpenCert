@@ -1,0 +1,39 @@
+@import "colors.scss";
+
+.message{
+    margin-top: 1em;
+    margin-bottom: 1em;
+    width: 90%;
+    padding: 0.5em 5%;
+    background: $greenbg;
+    border: 3px solid $greenbord;
+    border-bottom-left-radius: 1em;
+    border-top-left-radius: 1em;
+
+    &__error{
+        background: $redbg;
+        border: 3px solid $redbord;
+    }
+
+    &__slideOut{
+        margin-left: 100%;
+        animation: slideOut 1s;
+    }
+
+    &__container{
+        position: absolute;
+        top: 0;
+        right: 0;
+        widows: 40%;
+        overflow: hidden;
+    }
+}
+
+@keyframes slideOut{
+    from{
+        margin-left: 0;
+    }
+    to{
+        margin-left: 100%;
+    }
+}

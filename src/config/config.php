@@ -2,8 +2,7 @@
 
 //includes
 require_once("lib/utils.php");
-//uncomment this if you have LoginMaster installed
-//require_once("lib/LoginMaster/LoginMaster.php");
+require_once("lib/LoginMaster/LoginMaster.php");
 
 
 //parse config
@@ -60,24 +59,22 @@ if($config["general"]["debug"]){
 
 
 //set up LoginMaster
-//uncomment these if you have LoginMaster installed
-/*
 $config=new \LoginMaster\Config($db, $config["login"]["session_lifetime"], $config["login"]["captcha_enable"], $config["login"]["captcha_after"], $config["login"]["captcha_sitekey"], $config["login"]["captcha_secretkey"], $config["login"]["ban_enable"], $config["login"]["ban_after"], $config["login"]["ban_time"], $config["login"]["look_time"], $config["login"]["remember_enable"], $config["login"]["remember_time"], "username");
 class lmHandler implements \LoginMaster\Handler{
     public function handle($state, $target=0){
         switch($state){
             case \LoginMaster\LoginMaster::LOGIN_FAILED:
-                //...
+                \LightFrame\Utils\setError(200);
                 break;
             case \LoginMaster\LoginMaster::CAPTCHA_FAILED:
-                //...
+                \LightFrame\Utils\setError(201);
                 break;
             case \LoginMaster\LoginMaster::BANNED:
-                //...
+                \LightFrame\Utils\setError(203);
                 break;
             case \LoginMaster\LoginMaster::LOGIN_OK:
-                //...
-                //we have $target as well
+                //load info about user
+                
                 break;
             case \LoginMaster\LoginMaster::LOGOUT_DONE:
                 //...
@@ -96,4 +93,3 @@ class lmPasswordEngine implements \LoginMaster\PasswordEngine{
 };
 $lm=new \LoginMaster\LoginMaster($config, new lmHandler(), new lmPasswordEngine(), new \LoginMaster\defaultTwoFactor());
 $lm->init();
-*/
