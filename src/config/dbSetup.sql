@@ -262,5 +262,8 @@ CREATE TABLE `certificates`(
 /*
  * Default records
  */
-INSERT INTO users(id, username) VALUES(1, 'nouser');
+INSERT INTO users(id, fullname) VALUES (1, 'nouser');
 INSERT INTO groups(id) VALUES ('guest'),('admin'),('manager'),('exam_editor'),('variant_editor'),('evaluator'),('inspector');
+/* default admin credintials: admin-admin */
+INSERT INTO users(username, fullname, password) VALUES ('admin', 'Admin', 'sha1:64000:18:9nTO2bcEmz9Bg3fP79pIatpUbG9/3SYb:HoLjQZoWNtiBaDQuY0O9kOAU');
+INSERT INTO group_members(`group`, user) VALUES ('admin', 2);

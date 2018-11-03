@@ -64,6 +64,7 @@ if($config["general"]["debug"]){
 $lmconfig=new \LoginMaster\Config($db, $config["login"]["session_lifetime"], $config["login"]["captcha_enable"], $config["login"]["captcha_after"], $config["login"]["captcha_sitekey"], $config["login"]["captcha_secretkey"], $config["login"]["ban_enable"], $config["login"]["ban_after"], $config["login"]["ban_time"], $config["login"]["look_time"], $config["login"]["remember_enable"], $config["login"]["remember_time"], "username");
 class lmHandler implements \LoginMaster\Handler{
     public function handle($state, $target=0){
+        global $db;
         switch($state){
             case \LoginMaster\LoginMaster::LOGIN_FAILED:
                 \LightFrame\Utils\setError(200);
@@ -83,7 +84,7 @@ class lmHandler implements \LoginMaster\Handler{
                 $sql->execute(array(":id"=>$target));
                 $user=$sql->fetch(PDO::FETCH_ASSOC);
 
-                $sql=$db->prepare("SELECT group, primary FROM group_members WHERE user=:id");
+                $sql=$db->prepare("SELECT `group`, `primary` FROM group_members WHERE user=:id");
                 $sql->execute(array(":id"=>$target));
                 $group=$sql->fetchAll(PDO::FETCH_ASSOC);
 
@@ -101,7 +102,7 @@ class lmHandler implements \LoginMaster\Handler{
                 }
 
                 //reload browser window
-                \LightFrame\Utils\safeReload();
+                header("Location: ./");
 
                 break;
             case \LoginMaster\LoginMaster::LOGOUT_DONE:

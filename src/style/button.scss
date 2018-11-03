@@ -1,0 +1,13 @@
+@import "colors.scss";
+
+.button{
+    padding: 1em;
+    background: $darkbg;
+    color: white;
+    min-width: 7em;
+    border: none;
+
+    &:hover{
+        background: $darkestbg;
+    }
+}

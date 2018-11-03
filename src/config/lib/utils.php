@@ -127,7 +127,7 @@ function clearError(){
 ///Safely reload page, without form resubmission
 ///
 function safeReload(){
-    header("Location: ".explode("?", $_SERVER["REQUEST_URI"][0]));
+    header("Location: ".explode("?", $_SERVER["REQUEST_URI"])[0]);
 }
 
 

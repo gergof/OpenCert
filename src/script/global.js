@@ -24,6 +24,8 @@ export const route=(site, pop=false) => {
             type: "GET",
             data: {load: site.split("/")[0], sub: site.split("/")[1]}
         }).then((resp) => {
+            loadMessages();
+
             $("#module").html(resp);
             if(!pop){
                 window.history.pushState({site}, null, "./"+site);
@@ -45,5 +47,6 @@ export const run=() => {
         else{
             route("", true);
         }
-    })
+    });
+    loadMessages();
 };

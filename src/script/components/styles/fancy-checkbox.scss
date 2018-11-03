@@ -1,0 +1,39 @@
+.checkbox{
+    position: relative;
+    background: rgb(80, 80, 80);
+    width: 5em;
+    border-radius: 2em;
+    height: 2em;
+    margin: 0.5em;
+
+    &__toggle{
+        position: absolute;
+        height: 1.5em;
+        top: 0.25em;
+        left: 0.25em;
+        width: 2.5em;
+        transition: 0.5s;
+        border-radius: 2em;
+        background: green;
+
+        &__active{
+            left: 2.25em;
+        }
+    }
+
+    &:before{
+        content: 'Off';
+        position: absolute;
+        right: 0.4em;
+        top: 0.5em;
+        color: gray;
+    }
+
+    &:after{
+        content: 'On';
+        position: absolute;
+        left: 0.4em;
+        top: 0.5em;
+        color: green;
+    }
+}

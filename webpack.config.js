@@ -34,8 +34,8 @@ module.exports={
                 from: "src",
                 to: ".",
                 ignore: [
-                    "script/*",
-                    "style/*"
+                    "script/**/*",
+                    "style/**/*"
                 ]
             }
         ])
