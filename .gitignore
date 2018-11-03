@@ -1,0 +1,5 @@
+opencert.sublime-workspace
+node_modules/
+dist/
+deploy.config.js
+user.config.ini

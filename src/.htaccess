@@ -1,0 +1,7 @@
+RewriteEngine on
+#This redirects the /.../ReservedDirectory to /ReservedDirectory
+RewriteRule ^([a-zA-Z_]+)\/((config|res|script|style|modules)\/?([a-zA-Z_.\/]+)?)$ /$2 [L,R]
+#This prevents the rewrite of reserved directories
+RewriteRule ^(config|res|script|style|modules)\/?(.)+?$ - [L]
+#This does the actual routing
+RewriteRule ^([a-zA-Z_]+)(\/([a-zA-Z0-9_:]+))?\/?$ index.php?view=$1&sub=$3 [L,QSA]
