@@ -3,6 +3,8 @@
 //includes
 require_once("lib/utils.php");
 require_once("lib/LoginMaster/LoginMaster.php");
+require_once("lib/PasswordStorage.php");
+require_once("lib/myUtils.php");
 
 
 //parse config
@@ -10,7 +12,7 @@ $config=parse_ini_file("config.ini", true);
 
 
 //parse user config if available
-if(file_exists(__DIR__."user.config.ini")){
+if(file_exists(__DIR__."/user.config.ini")){
     $usrconf=parse_ini_file("user.config.ini", true);
     //merge the two config files together
     $config=array_merge($config, $usrconf);
@@ -59,37 +61,69 @@ if($config["general"]["debug"]){
 
 
 //set up LoginMaster
-$config=new \LoginMaster\Config($db, $config["login"]["session_lifetime"], $config["login"]["captcha_enable"], $config["login"]["captcha_after"], $config["login"]["captcha_sitekey"], $config["login"]["captcha_secretkey"], $config["login"]["ban_enable"], $config["login"]["ban_after"], $config["login"]["ban_time"], $config["login"]["look_time"], $config["login"]["remember_enable"], $config["login"]["remember_time"], "username");
+$lmconfig=new \LoginMaster\Config($db, $config["login"]["session_lifetime"], $config["login"]["captcha_enable"], $config["login"]["captcha_after"], $config["login"]["captcha_sitekey"], $config["login"]["captcha_secretkey"], $config["login"]["ban_enable"], $config["login"]["ban_after"], $config["login"]["ban_time"], $config["login"]["look_time"], $config["login"]["remember_enable"], $config["login"]["remember_time"], "username");
 class lmHandler implements \LoginMaster\Handler{
     public function handle($state, $target=0){
         switch($state){
             case \LoginMaster\LoginMaster::LOGIN_FAILED:
                 \LightFrame\Utils\setError(200);
+                \LightFrame\Utils\safeReload();
                 break;
             case \LoginMaster\LoginMaster::CAPTCHA_FAILED:
                 \LightFrame\Utils\setError(201);
+                \LightFrame\Utils\safeReload();
                 break;
             case \LoginMaster\LoginMaster::BANNED:
                 \LightFrame\Utils\setError(203);
+                \LightFrame\Utils\safeReload();
                 break;
             case \LoginMaster\LoginMaster::LOGIN_OK:
                 //load info about user
-                
+                $sql=$db->prepare("SELECT id, username, fullname, rsakey FROM users WHERE id=:id");
+                $sql->execute(array(":id"=>$target));
+                $user=$sql->fetch(PDO::FETCH_ASSOC);
+
+                $sql=$db->prepare("SELECT group, primary FROM group_members WHERE user=:id");
+                $sql->execute(array(":id"=>$target));
+                $group=$sql->fetchAll(PDO::FETCH_ASSOC);
+
+                //setting session
+                $_SESSION["id"]=$user["id"];
+                $_SESSION["username"]=$user["username"];
+                $_SESSION["fullname"]=$user["fullname"];
+                $_SESSION["rsakey"]=$user["rsakey"];
+                $_SESSION["groups"]=array();
+                foreach($group as $g){
+                    array_push($_SESSION["groups"], $g["group"]);
+                    if($g["primary"]){
+                        $_SESSION["primary_group"]=$g["group"];
+                    }
+                }
+
+                //reload browser window
+                \LightFrame\Utils\safeReload();
+
                 break;
             case \LoginMaster\LoginMaster::LOGOUT_DONE:
-                //...
+                \LightFrame\Utils\setMessage(1);
+                \LightFrame\Utils\safeReload();
                 break;
             case \LoginMaster\LoginMaster::FORGET_DONE:
-                //...
+                \LightFrame\Utils\setMessage(2);
+                \LightFrame\Utils\safeReload();
                 break; 
         }
     }
 };
 class lmPasswordEngine implements \LoginMaster\PasswordEngine{
     public function verify($input, $database){
-        //use something better!
-        return $input==$database;
+        if(PasswordStorage::verify_password($input, $database)){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 };
-$lm=new \LoginMaster\LoginMaster($config, new lmHandler(), new lmPasswordEngine(), new \LoginMaster\defaultTwoFactor());
+$lm=new \LoginMaster\LoginMaster($lmconfig, new lmHandler(), new lmPasswordEngine(), new \LoginMaster\defaultTwoFactor());
 $lm->init();

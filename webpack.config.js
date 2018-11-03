@@ -3,7 +3,7 @@ const CopyWebpackPlugin=require("copy-webpack-plugin");
 
 module.exports={
     mode: process.env.NODE_ENV || "development",
-    entry: "src/script/main.js",
+    entry: "./src/script/main.js",
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "script/bundle.js",
