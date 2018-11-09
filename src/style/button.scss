@@ -6,8 +6,25 @@
     color: white;
     min-width: 7em;
     border: none;
+    margin: 0.1em;
 
     &:hover{
         background: $darkestbg;
+    }
+
+    &__green{
+        background: $greenbg;
+
+        &:hover{
+            background: $greenbord;
+        }
+    }
+
+    &__red{
+        background: $redbg;
+
+        &:hover{
+            background: $redbord;
+        }
     }
 }

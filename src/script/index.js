@@ -10,7 +10,7 @@ export const getNews=(offset=0) => {
     $.ajax({
         url: "./modules/loader.php",
         method: "GET",
-        data: {news: offset}
+        data: {load: "", news: offset}
     }).then((resp) => {
         var news=JSON.parse(resp);
         

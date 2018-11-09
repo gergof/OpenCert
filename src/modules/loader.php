@@ -6,10 +6,7 @@ if(!isset($config)){
     require_once("../config/config.php");
 }
 
-use function \LightFrame\Utils\setError;
-
 function errorPage($errcode){
-    setError($errcode);
     if(file_exists(__DIR__."/parts/error/".$errcode.".php")){
         include("parts/error/".$errcode.".php");
     }
@@ -19,9 +16,6 @@ function errorPage($errcode){
 }
 
 function RBAC_check($view){
-    if(hasGroup("admin")){
-        return true;
-    }
     if($view=="index"){
         return true;
     }

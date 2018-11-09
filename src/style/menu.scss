@@ -4,6 +4,7 @@
     background: $darkbg;
     display: flex;
     justify-content: stretch;
+    flex-wrap: wrap;
     width: 100%;
 
     &__item{

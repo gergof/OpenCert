@@ -23,3 +23,7 @@ export const index=mod_index;
 //login.js
 import * as mod_login from "./login.js";
 export const login=mod_login;
+
+//users.js
+import * as mod_users from "./users.js";
+export const users=mod_users;
