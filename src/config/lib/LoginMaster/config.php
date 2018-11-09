@@ -42,5 +42,6 @@ class Config{
     public function getBanAfter() { return $this->banAfter; }
     public function getLookTime() { return $this->lookTime; }
     public function getRememberEnable() { return $this->rememberEnable; }
+    public function getRememberTime() { return $this->rememberTime; }
     public function getUsernameField() { return $this->usernameField; }
 };

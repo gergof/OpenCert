@@ -80,6 +80,7 @@ class LoginMaster{
                     if($this->isRememberingUser() && $this->twoFactor->challange($this->isRememberingUser())){
                         //remembering user. Allow login
                         $this->permitAccess($this->isRememberingUser());
+                        return;
                     }
                 }
 
@@ -170,7 +171,7 @@ class LoginMaster{
             return null;
         }
         else{
-            return res["user"];
+            return $res["user"];
         }
     }
 

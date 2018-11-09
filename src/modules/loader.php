@@ -18,11 +18,80 @@ function errorPage($errcode){
     }
 }
 
+function RBAC_check($view){
+    if(hasGroup("admin")){
+        return true;
+    }
+    if($view=="index"){
+        return true;
+    }
+    if($view=="users"){
+        if(!hasGroup("admin")){
+            return false;
+        }
+    }
+    if($view=="files"){
+        if(!hasGroup("admin")){
+            return false;
+        }
+    }
+    if($view=="groups"){
+        if(!hasGroup(array("admin", "manager"))){
+            return false;
+        }
+    }
+    if($view=="news"){
+        if(!hasGroup(array("admin", "manager"))){
+            return false;
+        }
+    }
+    if($view=="organizations"){
+        if(!hasGroup(array("admin", "manager"))){
+            return false;
+        }
+    }
+    if($view=="exams"){
+        if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+            return false;
+        }
+    }
+    if($view=="myorg"){
+        return true;
+    }
+    if($view=="examinations"){
+        if(!hasGroup(array("admin", "evaluator", "inspector"))){
+            return false;
+        }
+    }
+    if($view=="certificates"){
+        if(!hasGroup(array("admin", "evaluator", "inspector"))){
+            return false;
+        }
+    }
+    if($view=="profile"){
+        return true;
+    }
+    if($view=="login"){
+        if(isset($_SESSION["id"])){
+            return false;
+        }
+    }
+    if($view=="about"){
+        return true;
+    }
+    return true;
+}
+
 function loadPart($view, $sub=null, $require=true){
     //globalize the vars here you want to make available for parts/submodules
     global $config, $lang, $langstr, $db, $lm;
 
     $view=$view==""?"index":$view;
+
+    if(!RBAC_check($view)){
+        errorPage(403);
+        die();
+    }
 
     if($sub!=null && $sub!=""){
         if(!file_exists(__DIR__."/parts/".$view."/".$sub.".php")){

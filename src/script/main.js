@@ -19,3 +19,7 @@ main.run();
 //index.js
 import * as mod_index from "./index.js";
 export const index=mod_index;
+
+//login.js
+import * as mod_login from "./login.js";
+export const login=mod_login;

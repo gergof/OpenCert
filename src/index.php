@@ -105,7 +105,7 @@ else{
                         <div class="menu__item" onclick="ui.main.route('organizations')">
                             <span><?php echo $lang["organizations"] ?></span>
                         </div>
-                    <?php endif; if(hasGroup("admin") || hasGroup("exam_editor") || hasGroup("variant_editor")): ?>
+                    <?php endif; if(hasGroup(array("admin", "exam_editor", "variant_editor"))): ?>
                         <div class="menu__item" onclick="ui.main.route('exams')">
                             <span><?php echo $lang["exams"] ?></span>
                         </div>
@@ -113,7 +113,7 @@ else{
                     <div class="menu__item" onclick="ui.main.route('myorg')">
                         <span><?php echo $lang["myorg"] ?></span>
                     </div>
-                    <?php if(hasGroup("admin") || hasGroup("evaluator") || hasGroup("inspector")): ?>
+                    <?php if(hasGroup(array("admin", "evaluator", "inspector"))): ?>
                         <div class="menu__item" onclick="ui.main.route('examinations')">
                             <span><?php echo $lang["examinations"] ?></span>
                         </div>
