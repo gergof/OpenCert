@@ -28,3 +28,5 @@
         <?php endif ?>
     </fieldset>
 </form>
+<br style="line-height: 5em"/>
+<button class="button" style="margin: auto" onclick="ui.main.route('login/register')"><?php echo $lang["register"] ?></button>

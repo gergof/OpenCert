@@ -1,0 +1,27 @@
+@import "colors.scss";
+
+.checkinput{
+    position: relative;
+
+    &__pending::after{
+        content: "\f110";
+        font-family: "Font Awesome 5 Free";
+        color: $bg;
+        position: absolute;
+        left: 0.5em;
+    }
+
+    &__ok::after{
+        content: "\f00c";
+        font-family: "Font Awesome 5 Free";
+        color: $greenbg;
+        left: 0.5em;
+    }
+
+    &__error::after{
+        content: "\f00d";
+        font-family: "Font Awesome 5 Free";
+        color: $redbg;
+        left: 0.5em;
+    }
+}
