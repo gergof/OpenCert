@@ -3,7 +3,7 @@
 if(isset($_GET["users"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
-        die();
+        die("restricted");
     }
 
     $sql=$db->prepare("SELECT u.id, u.username, u.fullname, u.country, u.region, u.city, u.address, u.phone, u.email, GROUP_CONCAT(gm.group SEPARATOR ', ') AS groups FROM users AS u LEFT JOIN group_members AS gm ON (gm.user=u.id) WHERE u.id<>1 GROUP BY u.id ORDER BY u.fullname ASC LIMIT 100 OFFSET :offset");
@@ -17,7 +17,7 @@ if(isset($_GET["users"])){
 if(isset($_GET["count"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
-        die();
+        die("restricted");
     }
 
     $sql=$db->prepare("SELECT COUNT(id) AS count FROM users WHERE id<>1");
@@ -31,31 +31,33 @@ if(isset($_GET["count"])){
 if(isset($_POST["new_passwd"]) && isset($_POST["passwd"]) && isset($_POST["passwd_conf"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
-        die();
+        die("restricted");
     }
 
     if($_POST["passwd"]!=$_POST["passwd_conf"]){
         \LightFrame\Utils\setError(203);
+        die("error");
     }
     else{
         $sql=$db->prepare("UPDATE users SET password=:passwd WHERE id=:id");
         $sql->execute(array(":passwd"=>PasswordStorage::create_hash($_POST["passwd"]), ":id"=>$_POST["new_passwd"]));
         $res=$sql->rowCount();
 
-        if($res<0){
+        if($res<1){
             \LightFrame\Utils\setError(500);
+            die("error");
         }
         else{
             \LightFrame\Utils\setMessage(3);
         }
     }
-    die();
+    die("ok");
 }
 
 if(isset($_GET["groupsfor"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
-        die();
+        die("restricted");
     }
 
     $sql=$db->prepare("SELECT `group` FROM group_members WHERE user=:id");
@@ -73,7 +75,7 @@ if(isset($_GET["groupsfor"])){
 if(isset($_POST["new_groups"]) && isset($_POST["groups"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
-        die();
+        die("restricted");
     }
     
     $sql=$db->prepare("DELETE FROM group_members WHERE user=:id");
@@ -95,7 +97,7 @@ if(isset($_POST["new_groups"]) && isset($_POST["groups"])){
     }
 
     \LightFrame\Utils\setMessage(4);
-    die();
+    die("ok");
 }
 
 ?>

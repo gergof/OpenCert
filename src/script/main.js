@@ -27,3 +27,7 @@ export const login=mod_login;
 //users.js
 import * as mod_users from "./users.js";
 export const users=mod_users;
+
+//groups.js
+import * as mod_groups from "./groups.js";
+export const groups=mod_groups;
