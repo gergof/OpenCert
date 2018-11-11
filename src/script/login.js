@@ -27,7 +27,7 @@ export const validateUsername=(el) => {
 
 export const generateKeypair=() => {
     const key=new NodeRSA();
-    key.generateKeypair(4096);
+    key.generateKeyPair(4096);
 
     $("#rsa_public").val(key.exportKey("pkcs1-public-pem"));
     Modal({
