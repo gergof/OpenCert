@@ -21,11 +21,12 @@
     }
 
     &__container{
-        position: absolute;
+        position: fixed;
         top: 0;
         right: 0;
         width: 40%;
         overflow: hidden;
+        z-index: 15;
     }
 }
 

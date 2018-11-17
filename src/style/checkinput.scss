@@ -1,0 +1,40 @@
+@import "colors.scss";
+
+.checkinput{
+    position: relative;
+
+    @mixin __after{
+        font-family: "Font Awesome 5 Free";
+        font-weight: 900;
+        font-size: 2em;
+        position: absolute;
+        right: 0.5rem;
+        top: 0.5rem;
+    }
+
+    &__input{
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 99.3%;
+    }
+
+    &__pending::after{
+        @include __after;
+        content: "\f110";
+        color: $bg;
+    }
+
+    &__ok::after{
+        @include __after;
+        content: "\f00c";
+        color: $greenbg;
+    }
+
+    &__error::after{
+        @include __after;
+        content: "\f00d";
+        color: $redbg;
+    }
+}

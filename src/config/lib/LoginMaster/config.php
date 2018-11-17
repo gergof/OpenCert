@@ -40,6 +40,7 @@ class Config{
     public function getCaptchaSecretkey() { return $this->captchaSecretkey; }
     public function getBanEnable() { return $this->banEnable; }
     public function getBanAfter() { return $this->banAfter; }
+    public function getBanTime() { return $this->banTime; }
     public function getLookTime() { return $this->lookTime; }
     public function getRememberEnable() { return $this->rememberEnable; }
     public function getRememberTime() { return $this->rememberTime; }
