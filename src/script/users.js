@@ -2,44 +2,34 @@ import $ from "jquery";
 import Modal from "./components/Modal.js";
 import {loadMessages} from "./global.js";
 
-export const initTable=() => {
-    getPageCount();
-    loadUsers();
-}
-
-export const getPageCount=() => {
+export const getUsers=(event) => {
+    console.log(event);
+    //get count
     $.ajax({
         url: "./modules/loader.php",
         method: "GET",
-        data: {load: "users", count: true}
+        data: {load: "users", users_count: true}
     }).then((resp) => {
         var count=JSON.parse(resp);
 
-        $("#usertable_count").html(count.count);
-
-        var pages=Math.ceil(count.count/100);
-
-        $("#usertable_pages").html("");
-        for(var i=1; i<=pages; i++){
-            $("<span onclick=\"ui.users.loadUsers("+(i-1).toString()+")\">"+i.toString()+"</span>").hide().appendTo("#usertable_pages").fadeIn();
-        }
+        $("#usertable").attr("data-count", count.count);
     });
-};
 
-export const loadUsers=(page=0) => {
+    //get users
     $.ajax({
         url: "./modules/loader.php",
         method: "GET",
-        data: {load: "users", users: page}
+        data: {load: "users", users: event ? event.data.page : 0}
     }).then((resp) => {
         var users=JSON.parse(resp);
 
-        var html="";
-        users.forEach((user) => {
-            html+="<tr><td>"+user.id+"</td><td>"+user.username+"</td><td>"+user.fullname+"</td><td>"+(user.groups||"")+"</td><td>"+user.country+"</td><td>"+user.region+"</td><td>"+user.city+"</td><td>"+user.address+"</td><td>"+user.phone+"</td><td>"+user.email+"</td><td>"+"<i class=\"fa fa-key\" style=\"margin: 0 0.3em\" onclick=\"ui.users.newPassword("+user.id+")\"/><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.users.editGroups("+user.id+")\"/>"+"</td></tr>";
+        users=users.map((user) => {
+            return Object.assign(user, {
+                operations: "<i class=\"fa fa-key\" style=\"margin: 0 0.3em\" onclick=\"ui.users.newPassword("+user.id+")\"/><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.users.editGroups("+user.id+")\"/>"
+            });
         });
-        
-        $("#usertable_content").html(html);
+
+        $("#usertable").attr("data-content", JSON.stringify(users));
     });
 };
 
@@ -143,7 +133,7 @@ export const editGroups=(id) => {
                     data: {new_groups: id, groups: JSON.stringify(groups)}
                 }).then((resp) => {
                     loadMessages();
-                    initTable();
+                    getUsers();
                 });
             }
         });

@@ -2,6 +2,8 @@
 import "@webcomponents/webcomponentsjs";
 import "./components/main.js";
 
+
+
 //import styles
 import "../style/main.scss";
 

@@ -3,13 +3,13 @@ import template from "./templates/fancy-table.html";
 import style from "!raw-loader!sass-loader!./styles/fancy-table.scss";
 
 //needed args:
-//data-countLabel: (optional) Label to show for count
+//data-countlabel: (optional) Label to show for count
 //data-count: Number of entries
 //data-perpage: How many entries on a page
 //data-header: Json array representing the header
 //data-order: Json array representing the field names of content object in the order to be displayed
 //data-content: Json array or javascript object representing the data to display
-//data-requestPage: Event; The user requested the page n to be fetched
+//data-requestpage: Event; The user requested the page n to be fetched. It should update these attributes: data-count, data-content. If event object is null it should fetch the 1st page
 class FancyTable extends HTMLElement{
     constructor(){
         super();
@@ -23,12 +23,17 @@ class FancyTable extends HTMLElement{
         this.loadHeader=this.loadHeader.bind(this);
         this.loadPageCount=this.loadPageCount.bind(this);
         this.loadData=this.loadData.bind(this);
-        this.refresh=this.refresh.bind(this);
+
+        //create jquery root
+        this.$=(el) => $(this.shadowRoot.querySelector(el));
     }
 
     initTable(){
         //localization
-        this.shadowRoot.querySelector("#table_count_label").innerHTML=this.dataset.countLabel||"Count: ";
+        this.$("#table_count_label").html(this.dataset.countlabel||"Count: ");
+
+        //request data
+        eval(this.dataset.requestpage)(null);
 
         //load components
         this.loadHeader();
@@ -40,17 +45,16 @@ class FancyTable extends HTMLElement{
         var header=JSON.parse(this.dataset.header);
 
         header.map((field) => {
-            var f=$("<th></th");
+            var f=$("<th></th>");
             f.html(field);
-            f.appendTo(this.$.table_header);
+            f.appendTo(this.$("#table_header"));
         });
     }
 
     loadData(){
         var order=JSON.parse(this.dataset.order);
-        var data=this.dataset.content instanceof Object ? this.dataset.content : JSON.parse(this.dataset.content);
+        var data=JSON.parse(this.dataset.content);
 
-        var oldBody=this.shadowRoot.querySelector("#table_content");
         var newBody=$("<tbody></tbody>");
 
         data.map((row) => {
@@ -65,23 +69,22 @@ class FancyTable extends HTMLElement{
             r.appendTo(newBody);
         });
 
-        this.shadowRoot.querySelector("#table").replaceChild(newBody, oldBody);
+        this.$("#table_content").html(newBody.html());
     }
 
     loadPageCount(){
         var count=this.dataset.count;
         var perpage=this.dataset.perpage;
 
-        this.shadowRoot.querySelector("#table_count").innerHTML(count);
+        this.$("#table_count").text(count);
 
-        var el=$(this.$.table_pages);
-        el.html("");
+        this.$("#table_pages").html("");
 
         for(var i=1; i<=Math.ceil(count/perpage); i++){
             var p=$("<span></span>");
             p.html(i.toString());
-            p.on("click", {page: i-1}, this.dataset.requestPage);
-            p.hide().appendTo(el).fadeIn();
+            p.on("click", {page: i-1}, eval(this.dataset.requestpage));
+            p.hide().appendTo(this.$("#table_pages")).fadeIn();
         }
     }
 
@@ -89,9 +92,17 @@ class FancyTable extends HTMLElement{
         this.initTable();
     }
 
-    attributeChangedCallback(){
-        this.loadData();
-        this.loadPageCount();
+    attributeChangedCallback(name, oldVal, newVal){
+        if(name=="data-count" && oldVal!==newVal){
+            this.loadPageCount();
+        }
+        if(name=="data-content" && oldVal!==newVal){
+            this.loadData();
+        }
+    }
+
+    static get observedAttributes(){
+        return ["data-content", "data-count"];
     }
 }
 

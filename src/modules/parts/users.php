@@ -14,7 +14,7 @@ if(isset($_GET["users"])){
     die();
 }
 
-if(isset($_GET["count"])){
+if(isset($_GET["users_count"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
         die("restricted");
@@ -108,37 +108,4 @@ if(isset($_POST["new_groups"]) && isset($_POST["groups"])){
 <span style="display: none" id="lang_password"><?php echo $lang["password"] ?></span>
 <span style="display: none" id="lang_passwordConf"><?php echo $lang["password_conf"] ?></span>
 <span style="display: none" id="lang_setMemberOf"><?php echo $lang["set_memberof"] ?></span>
-<div id="userstable">
-    <div class="table__holder">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><?php echo $lang["id"] ?></th>
-                    <th><?php echo $lang["username"] ?></th>
-                    <th><?php echo $lang["fullname"] ?></th>
-                    <th><?php echo $lang["groups"] ?></th>
-                    <th><?php echo $lang["country"] ?></th>
-                    <th><?php echo $lang["region"] ?></th>
-                    <th><?php echo $lang["city"] ?></th>
-                    <th><?php echo $lang["address"] ?></th>
-                    <th><?php echo $lang["phone"] ?></th>
-                    <th><?php echo $lang["email"] ?></th>
-                    <th><?php echo $lang["operations"] ?></th>
-                </tr>
-            </thead>
-            <tbody id="usertable_content">
-                <!-- Data goes here -->
-            </tbody>
-        </table>
-    </div>
-    <div class="table__pageswitch">
-        <span class="table__pageswitch__count">
-            <?php echo $lang["count"].": " ?>
-            <span id="usertable_count"></span>
-        </span>
-        <span class="table__pageswitch__pages" id="usertable_pages"></span>
-    </div>
-    <script>
-        ui.users.initTable()
-    </script>
-</div>
+<fancy-table id="usertable" data-countLabel="<?php echo $lang["count"].": " ?>" data-perpage="100" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["username"] ?>", "<?php echo $lang["fullname"] ?>", "<?php echo $lang["groups"] ?>", "<?php echo $lang["country"] ?>", "<?php echo $lang["region"] ?>", "<?php echo $lang["city"] ?>", "<?php echo $lang["address"] ?>", "<?php echo $lang["phone"] ?>", "<?php echo $lang["email"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "username", "fullname", "groups", "country", "region", "city", "address", "phone", "email", "operations"]' data-requestPage="ui.users.getUsers" data-count="0" data-content="[]"/>
