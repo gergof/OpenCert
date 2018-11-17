@@ -3,7 +3,6 @@ import Modal from "./components/Modal.js";
 import {loadMessages} from "./global.js";
 
 export const getUsers=(event) => {
-    console.log(event);
     //get count
     $.ajax({
         url: "./modules/loader.php",
