@@ -69,16 +69,32 @@ export const validatePublicKey=(el) => {
     }
 };
 
+export const validatePassword=(el) => {
+    var cont=$(el).parent(".checkinput");
+    cont.removeClass("checkinput__ok").removeClass("checkinput__error").addClass("checkinput__pending");
+
+    if($("#password").val()==$(el).val()){
+        cont.removeClass("checkinput__pending").addClass("checkinput__ok");
+    }
+    else{
+        cont.removeClass("checkinput__pending").addClass("checkinput__error");
+    }
+};
+
 export const register=(e) => {
     e.preventDefault();
 
+    var data={};
+    $("#register_form").serializeArray().map((cur) => {
+        data[cur.name]=cur.value;
+    });
+
     $.ajax({
-        url: "./modules/loader.php?load=login&sub=register",
+        url: "../modules/loader.php?load=login&sub=register",
         method: "POST",
-        data: {register: $("#register_form").serialize()}
+        data: {register: JSON.stringify(data)}
     }).then((resp) => {
         if(resp=="ok"){
-            loadMessages();
             route("login");
         }
         else{

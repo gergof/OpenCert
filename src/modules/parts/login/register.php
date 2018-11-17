@@ -13,10 +13,49 @@ if(isset($_GET["username_available"])){
     }
 }
 
+if(isset($_POST["register"])){
+    $data=json_decode($_POST["register"], true);
+
+    if(!(isset($data["username"]) && isset($data["fullname"]) && isset($data["country"]) && isset($data["region"]) && isset($data["city"]) && isset($data["address"]) && isset($data["phone"]) && isset($data["email"]) && isset($data["password"]) && isset($data["password_conf"]) && isset($data["rsakey"]))){
+        \LightFrame\Utils\setError(207);
+        die("error");
+    }
+
+    $sql=$db->prepare("SELECT COUNT(id) AS count FROM users WHERE username=:uname");
+    $sql->execute(array(":uname" => $data["username"]));
+    $res=$sql->fetch(PDO::FETCH_ASSOC);
+
+    if($res["count"]!=0){
+        \LightFrame\Utils\setError(205);
+        die("error");
+    }
+
+    if($data["password"]!=$data["password_conf"]){
+        \LightFrame\Utils\setError(206);
+        die("error");
+    }
+
+    $passwd=PasswordStorage::create_hash($data["password"]);
+
+    $sql=$db->prepare("INSERT INTO users (username, fullname, country, region, city, address, phone, email, password, rsakey) VALUES (:uname, :fname, :country, :region, :city, :address, :phone, :email, :passwd, :rsakey)");
+    $sql->execute(array(":uname"=>$data["username"], ":fname"=>$data["fullname"], ":country"=>$data["country"], ":region"=>$data["region"], ":city"=>$data["city"], ":address"=>$data["address"], ":phone"=>$data["phone"], ":email"=>$data["email"], ":passwd"=>$passwd, ":rsakey"=>$data["rsakey"]));
+    $res=$sql->rowCount();
+
+    if($res<1){
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+    else{
+        \LightFrame\Utils\setMessage(7);
+        die("ok");
+    }
+}
+
 ?>
 
 <span style="display: none" id="lang_rsaPrivate"><?php echo $lang["rsa_private"] ?></span>
 <span style="display: none" id="lang_rsaPrivateTooltip"><?php echo $lang["rsa_private_tooltip"] ?></span>
+<span style="display: none" id="lang_rsaPrivateWrotedown"><?php echo $lang["rsa_private_wrotedown"] ?></span>
 <form method="POST" action="" onsubmit="ui.login.register(event)" id="register_form">
     <fieldset class="form">
         <legend class="form__legend">
@@ -24,7 +63,9 @@ if(isset($_GET["username_available"])){
         </legend>
         <div class="form__fields">
             <p><?php echo $lang["username"].":" ?></p>
-            <input type="text" class="checkinput" name="username" placeholder="<?php echo $lang["username"]."..." ?>" pattern="^[a-zA-Z0-9]+$" title="<?php echo $lang["username_tooltip"] ?>" required onchange="ui.login.validateUsername(this)"/>
+            <div class="checkinput">
+                <input type="text" class="checkinput__input" name="username" placeholder="<?php echo $lang["username"]."..." ?>" pattern="^[a-zA-Z0-9]+$" title="<?php echo $lang["username_tooltip"] ?>" required oninput="ui.login.validateUsername(this)"/>
+            </div>
             <p><?php echo $lang["fullname"].":" ?></p>
             <input type="text" name="fullname" placeholder="<?php echo $lang["fullname"]."..." ?>" required/>
             <p><?php echo $lang["country"].":" ?></p>
@@ -290,18 +331,22 @@ if(isset($_GET["username_available"])){
             <p><?php echo $lang["email"].":" ?></p>
             <input type="email" name="email" placeholder="<?php echo $lang["email"]."..." ?>" required/>
             <p><?php echo $lang["password"].":" ?></p>
-            <input type="password" name="password" placeholder="<?php echo $lang["password"]."..." ?>" required/>
+            <input type="password" id="password" name="password" placeholder="<?php echo $lang["password"]."..." ?>" required/>
             <p><?php echo $lang["password_conf"].":" ?></p>
-            <input type="password" name="password_conf" placeholder="<?php echo $lang["password_conf"]."..." ?>" required/>
+            <div class="checkinput">
+                <input type="password" class="checkinput__input" name="password_conf" placeholder="<?php echo $lang["password_conf"]."..." ?>" oninput="ui.login.validatePassword(this)" required/>
+            </div>
             <p><?php echo $lang["rsakey"].":" ?></p>
             <div>
                 <span><?php echo $lang["rsakey_tooltip"] ?></span>
                 <br/>
                 <span><?php echo $lang["rsa_public"].":" ?></span>
                 <br/>
-                <textarea class="checkinput" name="rsakey" id="rsa_public" placeholder="-----BEGIN RSA PUBLIC KEY-----&#x0a;&#x0a;...&#x0a;&#x0a;-----END RSA PUBLIC KEY-----" cols="50" rows="5" onchange="ui.login.validatePublicKey(this)" required></textarea>
+                <div class="checkinput">
+                    <textarea name="rsakey" style="width: 100%" id="rsa_public" placeholder="-----BEGIN RSA PUBLIC KEY-----&#x0a;&#x0a;...&#x0a;&#x0a;-----END RSA PUBLIC KEY-----" rows="5" oninput="ui.login.validatePublicKey(this)" required></textarea>
+                </div>
                 <br/>
-                <button type="button" class="button" onclick="ui.login.generateKeypair()"><?php echo $lang["rsa_generate"] ?></button>
+                <button type="button" class="button" onclick="ui.login.generateKeypair(this)"><?php echo $lang["rsa_generate"] ?></button>
             </div>
         </div>
         <button class="button"><?php echo $lang["register"] ?></button>
