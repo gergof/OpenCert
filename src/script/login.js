@@ -37,9 +37,9 @@ export const generateKeypair=() => {
             {
                 id: "ok",
                 action: "close",
-                class: "buttton button__red",
+                class: "button button__red",
                 icon: "exclamation-triangle",
-                label: $("#lang_rsaPrivateWrotedown").text()
+                label: $("#lang_rsaPrivateTooltip").text()
             }
         ]
     });

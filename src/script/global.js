@@ -28,7 +28,12 @@ export const route=(site, pop=false) => {
 
             $("#module").html(resp);
             if(!pop){
-                window.history.pushState({site}, null, "./"+site);
+                if(history.state!==null && history.state.site.split("/")[1] && history.state.site.split("/")[1]!==""){
+                    window.history.pushState({site}, null, "../"+site);
+                }
+                else{
+                    window.history.pushState({site}, null, "./"+site);
+                }
             }
             $("#module").slideDown();
         });
