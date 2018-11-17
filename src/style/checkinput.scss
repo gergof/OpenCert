@@ -3,25 +3,38 @@
 .checkinput{
     position: relative;
 
-    &__pending::after{
-        content: "\f110";
+    @mixin __after{
         font-family: "Font Awesome 5 Free";
-        color: $bg;
+        font-weight: 900;
+        font-size: 2em;
         position: absolute;
-        left: 0.5em;
+        right: 0.5rem;
+        top: 0.5rem;
+    }
+
+    &__input{
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 99.3%;
+    }
+
+    &__pending::after{
+        @include __after;
+        content: "\f110";
+        color: $bg;
     }
 
     &__ok::after{
+        @include __after;
         content: "\f00c";
-        font-family: "Font Awesome 5 Free";
         color: $greenbg;
-        left: 0.5em;
     }
 
     &__error::after{
+        @include __after;
         content: "\f00d";
-        font-family: "Font Awesome 5 Free";
         color: $redbg;
-        left: 0.5em;
     }
 }
