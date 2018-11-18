@@ -88,13 +88,114 @@ export const newNews=() => {
             }
         ]
     }).then((resp) => {
-        $.ajax({
-            url: "./modules/loader.php?load=news",
-            method: "POST",
-            data: {new: JSON.stringify(resp.formdata)}
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "./modules/loader.php?load=news",
+                method: "POST",
+                data: {new: JSON.stringify(resp.formdata)}
+            }).then((resp) => {
+                loadMessages();
+                getNews();
+            });
+        }
+    });
+};
+
+export const editNews=(id) => {
+    $.ajax({
+        url: "./modules/loader.php",
+        method: "GET",
+        data: {load: "news", getnews: id}
+    }).then((resp) => {
+        loadMessages();
+        if(resp=="error"){
+            return;
+        }
+
+        var news=JSON.parse(resp);
+
+        Modal({
+            title: $("#lang_edit").text(),
+            content: $("#lang_markdownTooltip").text(),
+            fields: [
+                {
+                    id: "title",
+                    name: $("#lang_title").text(),
+                    value: news.title
+                },
+                {
+                    id: "content",
+                    name: $("#lang_content").text(),
+                    type: "textarea",
+                    value: news.content
+                }
+            ],
+            buttons: [
+                {
+                    id: "ok",
+                    action: "submit",
+                    class: "button button__green",
+                    icon: "save",
+                    label: $("#lang_save").text()
+                },
+                {
+                    id: "cancel",
+                    action: "close",
+                    class: "button button__red",
+                    icon: "times",
+                    label: $("#lang_cancel").text()
+                },
+                {
+                    id: "preview",
+                    action: openPreview,
+                    class: "button",
+                    icon: "eye",
+                    label: $("#lang_preview").text()
+                }
+            ]
         }).then((resp) => {
-            loadMessages();
-            getNews();
+            if(resp.button=="ok"){
+                $.ajax({
+                    url: "./modules/loader.php?load=news",
+                    method: "POST",
+                    data: {update: JSON.stringify(Object.assign(resp.formdata, {id: id}))}
+                }).then((resp) => {
+                    loadMessages();
+                    getNews();
+                });
+            }
         });
+    });
+};
+
+export const deleteNews=(id) => {
+    Modal({
+        title: $("#lang_deleteSure").text(),
+        buttons: [
+            {
+                id: "delete",
+                action: "close",
+                class: "button button__red",
+                icon: "exclamation-triangle",
+                label: $("#lang_delete").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__green",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="delete"){
+            $.ajax({
+                url: "./modules/loader.php?load=news",
+                method: "POST",
+                data: {delete: id}
+            }).then((resp) => {
+                loadMessages();
+                getNews();
+            });
+        }
     });
 };
