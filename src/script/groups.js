@@ -2,44 +2,33 @@ import $ from "jquery";
 import Modal from "./components/Modal.js";
 import {loadMessages} from "./global.js";
 
-export const initTable=() => {
-    getPageCount();
-    loadGroups();
-};
-
-export const getPageCount=() => {
+export const getGroups=(event) => {
+    //get count
     $.ajax({
         url: "./modules/loader.php",
         method: "GET",
-        data: {load: "groups", count: true}
+        data: {load: "groups", groups_count: true}
     }).then((resp) => {
         var count=JSON.parse(resp);
 
-        $("#grouptable_count").html(count.count);
-
-        var pages=Math.ceil(count.count/20);
-
-        $("#grouptable_pages").html("");
-        for(var i=1; i<=pages; i++){
-            $("<span onclick=\"ui.groups.loadGroups("+(i-1).toString()+")\">"+i.toString()+"</span>").hide().appendTo("#grouptable_pages").fadeIn();
-        }
+        $("#grouptable").attr("data-count", count.count);
     });
-};
 
-export const loadGroups=(page=0) => {
+    //get groups
     $.ajax({
         url: "./modules/loader.php",
         method: "GET",
-        data: {load: "groups", groups: page}
+        data: {load: "groups", groups: event ? event.data.page : 0}
     }).then((resp) => {
         var groups=JSON.parse(resp);
 
-        var html="";
-        groups.forEach((group) => {
-            html+="<tr><td>"+group.id+"</td><td>"+group.description+"</td><td><i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.editGroup('"+group.id+"')\"/><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.getUsersForGroup('"+group.id+"')\"/></td></tr>";
+        groups=groups.map((group) => {
+            return Object.assign(group, {
+                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.editGroup('"+group.id+"')\"></i><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.getUsersForGroup('"+group.id+"')\"></i>"
+            });
         });
-        
-        $("#grouptable_content").html(html);
+
+        $("#grouptable").attr("data-content", JSON.stringify(groups));
     });
 };
 
@@ -89,7 +78,7 @@ export const editGroup=(group) => {
                     data: {edit: group, description: resp.formdata.description}
                 }).then((resp) => {
                     loadMessages();
-                    initTable();
+                    getGroups();
                 });
             }
         });
@@ -104,11 +93,13 @@ export const getUsersForGroup=(group) => {
     }).then((resp) => {
         var users=JSON.parse(resp);
 
-        var html="<div class=\"table__holder\"><table class=\"table\"><thead><tr><th>"+$("#lang_id").text()+"</th><th>"+$("#lang_username").text()+"</th><th>"+$("#lang_fullname").text()+"</th><th>"+$("#lang_email").text()+"</th><th>"+$("#lang_operations").text()+"</th></tr></thead><tbody>";
-        users.forEach((user) => {
-            html+="<tr><td>"+user.id+"</td><td>"+user.username+"</td><td>"+user.fullname+"</td><td>"+user.email+"</td><td><i class=\"fa fa-user-minus\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.removeUser('"+group+"', "+user.id+", this)\"/></td></tr>";
+        users=users.map((user) => {
+            return Object.assign(user, {
+                operations: "<i class=\"fa fa-user-minus\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.removeUser('"+group+"', "+user.id+", this)\"></i>"
+            });
         });
-        html+="</tbody></table></div>";
+
+        var html="<fancy-table id=\"modal_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_username").text()+"\", \""+$("#lang_fullname").text()+"\", \""+$("#lang_email").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"username\", \"fullname\", \"email\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>"
 
         Modal({
             title: $("#lang_groupMembers").text(),
@@ -122,6 +113,8 @@ export const getUsersForGroup=(group) => {
                 }
             ]
         });
+
+        $("#modal_table").attr("data-content", JSON.stringify(users));
     });
 };
 

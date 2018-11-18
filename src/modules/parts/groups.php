@@ -14,7 +14,7 @@ if(isset($_GET["groups"])){
     die();
 }
 
-if(isset($_GET["count"])){
+if(isset($_GET["groups_count"])){
     if(!hasGroup("admin")){
         \LightFrame\Utils\setError(403);
         die("restricted");
@@ -118,29 +118,4 @@ if(isset($_POST["removefrom"]) && isset($_POST["user"])){
 <span style="display: none" id="lang_close"><?php echo $lang["close"] ?></span>
 <span style="display: none" id="lang_deleteSure"><?php echo $lang["delete_sure"] ?></span>
 <span style="display: none" id="lang_delete"><?php echo $lang["delete"] ?></span>
-<div id="grouptable">
-    <div class="table__holder">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><?php echo $lang["id"] ?></th>
-                    <th><?php echo $lang["description"] ?></th>
-                    <th><?php echo $lang["operations"] ?></th>
-                </tr>
-            </thead>
-            <tbody id="grouptable_content">
-                <!-- content goes here -->
-            </tbody>
-        </table>
-    </div>
-    <div class="table__pageswitch">
-        <span class="table__pageswitch__count">
-            <?php echo $lang["count"].": " ?>
-            <span id="grouptable_count"></span>
-        </span>
-        <span class="table__pageswitch__pages" id="grouptable_pages"></span>
-    </div>
-    <script>
-        ui.groups.initTable();
-    </script>
-</div>
+<fancy-table id="grouptable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="20" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["description"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "description", "operations"]' data-content="[]" data-requestpage="ui.groups.getGroups"></fancy-table>
