@@ -10,20 +10,21 @@ if(isset($_GET["news"])){
         for($i=0; $i<count($_SESSION["groups"]); $i++){
             $target.=", ?";
         }
-        array_merge($targetArr, $_SESSION["groups"]);
+        $targetArr=array_merge($targetArr, $_SESSION["groups"]);
     }
 
     $target.=")";
 
     //get the offset
     $offset=$_GET["news"]*10;
+    array_push($targetArr, $offset);
 
     //prepare SQL
     $sql=$db->prepare("SELECT DISTINCT nt.news AS id, n.title, n.content, n.publish, u.fullname AS user FROM news_target AS nt INNER JOIN news AS n ON (n.id=nt.news) INNER JOIN users AS u ON (u.id=n.user) WHERE nt.group IN ".$target." ORDER BY publish DESC LIMIT 10 OFFSET ?");
-    array_push($targetArr, $offset);
     $sql->execute($targetArr);
+    $res=$sql->fetchAll();
 
-    echo json_encode($sql->fetchAll);
+    echo json_encode($sql->fetchAll());
     die();
 }
 
@@ -31,6 +32,9 @@ if(isset($_GET["news"])){
 
 <h2><?php echo $lang["news"] ?></h2>
 <span style="display: none" id="lang_loadmore"><?php echo $lang["loadmore"] ?></span>
-<div id="news" onload="ui.index.getNews()">
+<div id="news">
     <!-- news go here -->
 </div>
+<script>
+    ui.index.getNews();
+</script>

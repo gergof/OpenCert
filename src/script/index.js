@@ -13,6 +13,7 @@ export const getNews=(offset=0) => {
         data: {load: "", news: offset}
     }).then((resp) => {
         var news=JSON.parse(resp);
+        console.log(news);
         
         news.forEach((n) => {
             var root=$("<div style=\"margin-bottom: 2em\"></div>");

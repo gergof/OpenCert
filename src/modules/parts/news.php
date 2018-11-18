@@ -27,11 +27,11 @@ if(isset($_GET["news"])){
     }
 
     if(hasGroup("admin")){
-        $sql=$db->prepare("SELECT n.id, n.title, n.publish, u.fullname AS owner FROM news AS n INNER JOIN users AS u ON (u.id=n.user) ORDER BY n.publish DESC");
+        $sql=$db->prepare("SELECT n.id, n.title, GROUP_CONCAT(nt.group SEPARATOR ', ') AS targets, n.publish, u.fullname AS owner FROM news AS n INNER JOIN users AS u ON (u.id=n.user) LEFT JOIN news_target AS nt ON (nt.news=n.id) GROUP BY n.id ORDER BY n.publish DESC");
         $sql->execute();
     }
     else{
-        $sql=$db->prepare("SELECT n.id, n.title, n.publish, u.fullname AS owner FROM news AS n INNER JOIN users AS u ON (u.id=n.user) WHERE n.user=:uid ORDER BY n.publish DESC");
+        $sql=$db->prepare("SELECT n.id, n.title, GROUP_CONCAT(nt.group SEPARATOR ', ') AS targets, n.publish, u.fullname AS owner FROM news AS n INNER JOIN users AS u ON (u.id=n.user) LEFT JOIN news_target AS nt ON (nt.news=n.id) WHERE n.user=:uid GROUP BY n.id ORDER BY n.publish DESC");
         $sql->execute(array(":uid"=>$_SESSION["id"]));
     }
     $res=$sql->fetchAll(PDO::FETCH_ASSOC);
@@ -150,6 +150,67 @@ if(isset($_POST["delete"])){
     }
 }
 
+if(isset($_GET["gettarget"])){
+    if(!hasGroup(array("admin", "manager"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    //get active targets
+    $sql=$db->prepare("SELECT `group` FROM news_target WHERE news=:id");
+    $sql->execute(array(":id"=>$_GET["gettarget"]));
+    $res=$sql->fetchAll(PDO::FETCH_ASSOC);
+
+    //get all groups
+    $sql=$db->prepare("SELECT id AS `group` FROM groups");
+    $sql->execute();
+    $all=$sql->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode(array("allGroups"=>$all, "targetFor"=>$res));
+    die();
+}
+
+if(isset($_POST["new_targets"]) && isset($_POST["targets"])){
+    if(!hasGroup(array("admin", "manager"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    if(!hasGroup("admin")){
+        $sql=$db->prepare("SELECT COUNT(id) AS count FROM news WHERE id=:id and user=:uid");
+        $sql->execute(array(":id"=>$_POST["new_targets"], ":uid"=>$_SESSION["id"]));
+        $res=$sql->fetch(PDO::FETCH_ASSOC);
+
+        if($res<1){
+            \LightFrame\Utils\setError(208);
+            die("error");
+        }
+    }
+
+    //delete old targets
+    $sql=$db->prepare("DELETE FROM news_target WHERE news=:id");
+    $sql->execute(array(":id"=>$_POST["new_targets"]));
+
+    $targets=json_decode($_POST["targets"]);
+
+    if(count($targets)>0){
+        $vals="";
+        $arr=array();
+        foreach($targets as $t){
+            $vals.="(?, ?), ";
+            array_push($arr, $_POST["new_targets"], $t);
+        }
+        $vals=rtrim($vals, ", ");
+
+        //add new targets
+        $sql=$db->prepare("INSERT INTO news_target (news, `group`) VALUES ".$vals);
+        $sql->execute($arr);
+    }
+
+    \LightFrame\Utils\setMessage(11);
+    die("ok");
+}
+
 ?>
 
 <span style="display: none" id="lang_createNew"><?php echo $lang["createnew"] ?></span>
@@ -163,6 +224,8 @@ if(isset($_POST["delete"])){
 <span style="display: none" id="lang_edit"><?php echo $lang["edit"] ?></span>
 <span style="display: none" id="lang_deleteSure"><?php echo $lang["delete_sure"] ?></span>
 <span style="display: none" id="lang_delete"><?php echo $lang["delete"] ?></span>
-<fancy-table id="newstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="50" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["title"] ?>", "<?php echo $lang["publishdate"] ?>", "<?php echo $lang["owner"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "title", "publish", "owner", "operations"]' data-content="[]" data-requestpage="ui.news.getNews"></fancy-table>
+<span style="display: none" id="lang_setTargetFor"><?php echo $lang["set_targetfor"] ?></span>
+<span style="display: none" id="lang_ok"><?php echo $lang["ok"] ?></span>
+<fancy-table id="newstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="50" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["title"] ?>", "<?php echo $lang["targets"] ?>", "<?php echo $lang["publishdate"] ?>", "<?php echo $lang["owner"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "title", "targets", "publish", "owner", "operations"]' data-content="[]" data-requestpage="ui.news.getNews"></fancy-table>
 <br style="line-height: 5em"/>
 <button type="button" class="button" onclick="ui.news.newNews()"><i class="fa fa-plus"></i> <?php echo $lang["createnew"] ?></button>

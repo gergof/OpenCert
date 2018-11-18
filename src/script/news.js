@@ -25,7 +25,7 @@ export const getNews=(event) => {
 
         news=news.map((pnews) => {
             return Object.assign(pnews, {
-                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.news.editNews("+pnews.id+")\"/><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.news.deleteNews("+pnews.id+")\"/>"
+                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.news.editNews("+pnews.id+")\"></i><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.news.editTarget("+pnews.id+")\"></i><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.news.deleteNews("+pnews.id+")\"></i>"
             });
         });
 
@@ -197,5 +197,67 @@ export const deleteNews=(id) => {
                 getNews();
             });
         }
+    });
+};
+
+export const editTarget=(id) => {
+    $.ajax({
+        url: "./modules/loader.php",
+        method: "GET",
+        data: {load: "news", gettarget: id}
+    }).then((resp) => {
+        var targets=JSON.parse(resp);
+
+        var fields=[];
+        targets.allGroups.forEach((g) => {
+            var value=false;
+            for(var i=0; i<targets.targetFor.length; i++){
+                if(targets.targetFor[i].group==g.group){
+                    value=true;
+                    break;
+                }
+            }
+
+            fields.push({
+                id: g.group,
+                name: g.group+":",
+                type: "checkbox",
+                value
+            });
+        });
+
+        Modal({
+            title: $("#lang_setTargetFor").text(),
+            fields,
+            buttons: [
+                {
+                    id: "ok",
+                    action: "submit",
+                    class: "button button__green",
+                    icon: "check",
+                    label: $("lang_ok").text()
+                },
+                {
+                    id: "cancel",
+                    action: "close",
+                    class: "button button__red",
+                    icon: "times",
+                    label: $("#lang_cancel").text()
+                }
+            ]
+        }).then((resp) => {
+            if(resp.button=="ok"){
+                var targets=Object.keys(resp.formdata).filter((cur) => resp.formdata[cur]);
+
+                $.ajax({
+                    url: "./modules/loader.php?load=news",
+                    method: "POST",
+                    data: {new_targets: id, targets: JSON.stringify(targets)}
+                }).then((resp) => {
+                    loadMessages();
+                    getNews();
+                });
+            }
+        });
     });
 };
