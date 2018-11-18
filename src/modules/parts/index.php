@@ -22,9 +22,9 @@ if(isset($_GET["news"])){
     //prepare SQL
     $sql=$db->prepare("SELECT DISTINCT nt.news AS id, n.title, n.content, n.publish, u.fullname AS user FROM news_target AS nt INNER JOIN news AS n ON (n.id=nt.news) INNER JOIN users AS u ON (u.id=n.user) WHERE nt.group IN ".$target." ORDER BY publish DESC LIMIT 10 OFFSET ?");
     $sql->execute($targetArr);
-    $res=$sql->fetchAll();
+    $res=$sql->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode($sql->fetchAll());
+    echo json_encode($res);
     die();
 }
 
