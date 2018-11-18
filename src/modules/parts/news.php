@@ -67,6 +67,31 @@ if(isset($_POST["new"])){
     }
 }
 
+if(isset($_GET["getnews"])){
+    if(!hasGroup(array("admin", "manager"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    if(hasGroup("admin")){
+        $sql=$db->prepare("SELECT COUNT(id) AS count, id, title, content, publish, user FROM news WHERE id=:id");
+        $sql->execute(array(":id"=>$_GET["getnews"]));
+    }
+    else{
+        $sql=$db->prepare("SELECT COUNT(id) AS count, id, title, content, publish, user FROM news WHERE id=:id and user=:uid");
+        $sql->execute(array(":id"=>$_GET["getnews"], ":uid"=>$_SESSION["id"]));
+    }
+    $res=$sql->fetch(PDO::FETCH_ASSOC);
+
+    if($res["count"]<1){
+        \LightFrame\Utils\setError(204);
+        die("error");
+    }
+
+    echo json_encode($res);
+    die();
+}
+
 ?>
 
 <span style="display: none" id="lang_createNew"><?php echo $lang["createnew"] ?></span>
@@ -77,6 +102,6 @@ if(isset($_POST["new"])){
 <span style="display: none" id="lang_cancel"><?php echo $lang["cancel"] ?></span>
 <span style="display: none" id="lang_preview"><?php echo $lang["preview"] ?></span>
 <span style="display: none" id="lang_close"><?php echo $lang["close"] ?></span>
-<fancy-table id="newstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="50" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["title"] ?>", "<?php echo $lang["publishdate"] ?>", "<?php echo $lang["owner"] ?>"]' data-order='["id", "title", "publish", "owner"]' data-content="[]" data-requestpage="ui.news.getNews"/>
-<br style="line-height: 2em"/>
-<button type="button" class="button" onclick="ui.news.newNews()"><i class="fa fa-plus"/> <?php echo $lang["createnew"] ?></button>
+<fancy-table id="newstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="50" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["title"] ?>", "<?php echo $lang["publishdate"] ?>", "<?php echo $lang["owner"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "title", "publish", "owner", "operations"]' data-content="[]" data-requestpage="ui.news.getNews"></fancy-table>
+<br style="line-height: 5em"/>
+<button type="button" class="button" onclick="ui.news.newNews()"><i class="fa fa-plus"></i> <?php echo $lang["createnew"] ?></button>

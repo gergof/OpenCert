@@ -24,7 +24,7 @@ export const getGroups=(event) => {
 
         groups=groups.map((group) => {
             return Object.assign(group, {
-                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.editGroup('"+group.id+"')\"/><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.getUsersForGroup('"+group.id+"')\"/>"
+                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.editGroup('"+group.id+"')\"></i><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.getUsersForGroup('"+group.id+"')\"></i>"
             });
         });
 
@@ -95,11 +95,11 @@ export const getUsersForGroup=(group) => {
 
         users=users.map((user) => {
             return Object.assign(user, {
-                operations: "<i class=\"fa fa-user-minus\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.removeUser('"+group+"', "+user.id+", this)\"/>"
+                operations: "<i class=\"fa fa-user-minus\" style=\"margin: 0 0.3em\" onclick=\"ui.groups.removeUser('"+group+"', "+user.id+", this)\"></i>"
             });
         });
 
-        var html="<fancy-table id=\"modal_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_username").text()+"\", \""+$("#lang_fullname").text()+"\", \""+$("#lang_email").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"username\", \"fullname\", \"email\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"/>"
+        var html="<fancy-table id=\"modal_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_username").text()+"\", \""+$("#lang_fullname").text()+"\", \""+$("#lang_email").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"username\", \"fullname\", \"email\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>"
 
         Modal({
             title: $("#lang_groupMembers").text(),

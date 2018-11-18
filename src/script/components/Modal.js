@@ -62,7 +62,7 @@ const Modal=({title, content, fields, buttons}) => {
                     b.prop("class", button.class);
                 }
                 if(button.icon){
-                    b.html("<i class=\"fa fa-"+button.icon+"\"/> ");
+                    b.html("<i class=\"fa fa-"+button.icon+"\"></i> ");
                 }
                 if(button.label){
                     b.html(b.html()+button.label);

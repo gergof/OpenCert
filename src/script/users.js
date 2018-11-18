@@ -24,7 +24,7 @@ export const getUsers=(event) => {
 
         users=users.map((user) => {
             return Object.assign(user, {
-                operations: "<i class=\"fa fa-key\" style=\"margin: 0 0.3em\" onclick=\"ui.users.newPassword("+user.id+")\"/><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.users.editGroups("+user.id+")\"/>"
+                operations: "<i class=\"fa fa-key\" style=\"margin: 0 0.3em\" onclick=\"ui.users.newPassword("+user.id+")\"></i><i class=\"fa fa-users\" style=\"margin: 0 0.3em\" onclick=\"ui.users.editGroups("+user.id+")\"></i>"
             });
         });
 

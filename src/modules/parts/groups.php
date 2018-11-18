@@ -118,4 +118,4 @@ if(isset($_POST["removefrom"]) && isset($_POST["user"])){
 <span style="display: none" id="lang_close"><?php echo $lang["close"] ?></span>
 <span style="display: none" id="lang_deleteSure"><?php echo $lang["delete_sure"] ?></span>
 <span style="display: none" id="lang_delete"><?php echo $lang["delete"] ?></span>
-<fancy-table id="grouptable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="20" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["description"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "description", "operations"]' data-content="[]" data-requestpage="ui.groups.getGroups"/>
+<fancy-table id="grouptable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="20" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["description"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "description", "operations"]' data-content="[]" data-requestpage="ui.groups.getGroups"></fancy-table>
