@@ -31,7 +31,7 @@ else{
 <!DOCTYPE html>
 <html>
     <head>
-        <title><?php echo (isset($extend_title)?$extend_title." :: ":"").($sub!=""?$lang[$sub]." :: ":"").($view!=""?$lang[$view]." :: ":"").$lang["site_title"] ?></title>
+        <title><?php echo (isset($extend_title)?$extend_title." :: ":"").($sub!=""&&!is_numeric($sub)?$lang[$sub]." :: ":"").($view!=""?$lang[$view]." :: ":"").$lang["site_title"] ?></title>
         <meta charset="UTF-8"/>
         <!-- link icon -->
         <link rel="icon" href="./res/icon.png"/>

@@ -87,7 +87,7 @@ function loadPart($view, $sub=null, $require=true){
         die();
     }
 
-    if($sub!=null && $sub!=""){
+    if($sub!=null && $sub!="" && !is_numeric($sub)){
         if(!file_exists(__DIR__."/parts/".$view."/".$sub.".php")){
             if($require){
                 errorPage(404);

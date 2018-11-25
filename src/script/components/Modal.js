@@ -2,7 +2,7 @@ import $ from "jquery";
 
 //title: title of modal. Needed
 //content: content of modal. Optional
-//fields: array of objects. Needed props: id, name. Optional props: type, value
+//fields: array of objects. Needed props: id, name. Optional props: type, value, min, max
 //buttons: array of objects. Needed props: id, action. Optional props: class, icon, label
 const Modal=({title, content, fields, buttons}) => {
     return new Promise((resolve, reject) => {
@@ -17,7 +17,7 @@ const Modal=({title, content, fields, buttons}) => {
                     $("<textarea name=\""+field.id+"\" placeholder=\""+field.name+"...\">"+(field.value?field.value:"")+"</textarea>").appendTo(fieldlist);
                 }
                 else{
-                    $("<input type=\""+(field.type||"text")+"\" name=\""+field.id+"\" placeholder=\""+field.name+"...\" "+(field.value?(field.type=="checkbox"?"checked":"value=\""+field.value+"\""):"")+"/>").appendTo(fieldlist);
+                    $("<input type=\""+(field.type||"text")+"\" name=\""+field.id+"\" min=\""+field.min+"\" max=\""+field.max+"\" placeholder=\""+field.name+"...\" "+(field.value!==undefined&&field.value!==false?(field.type=="checkbox"?"checked":"value=\""+field.value+"\""):"")+"/>").appendTo(fieldlist);
                 }
             });
         }
@@ -72,7 +72,7 @@ const Modal=({title, content, fields, buttons}) => {
             });
         }
 
-        $("<h2>"+title+"</h2><hr/><p>"+(content||"")+"</p>").appendTo(body);
+        $("<h2>"+title+"</h2><hr/><div>"+(content||"")+"</div>").appendTo(body);
         fieldlist.appendTo(body);
         buttonlist.appendTo(body);
 
