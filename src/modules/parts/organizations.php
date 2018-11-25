@@ -52,7 +52,7 @@ if(isset($_GET["org_members"])){
         die("restricted");
     }
 
-    $sql=$db->prepare("SELECT u.id, u.username, u.fullname, u.phone, u.email, om.role FROM organization_members AS om INNER JOIN users AS u ON (u.id=om.org) WHERE om.org=:org ORDER BY u.id");
+    $sql=$db->prepare("SELECT u.id, u.username, u.fullname, u.phone, u.email, om.role FROM organization_members AS om INNER JOIN users AS u ON (u.id=om.user) WHERE om.org=:org ORDER BY u.id");
     $sql->execute(array(":org"=>$_GET["org_members"]));
     $res=$sql->fetchAll(PDO::FETCH_ASSOC);
 

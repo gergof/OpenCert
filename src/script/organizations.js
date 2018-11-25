@@ -24,6 +24,7 @@ export const getOrgs=(event) => {
 
         orgs=orgs.map((org) => {
             return Object.assign(org, {
+                reputation: "<reputation-slider title=\""+org.reputation+"\" data-value=\""+org.reputation+"\"></reputation-slider>",
                 operations: "<i class=\"fa fa-window-maximize\" style=\"margin: 0 0.3em\" onclick=\"ui.organizations.openDetails("+org.id+")\"></i>"
             });
         });
@@ -85,7 +86,7 @@ export const openDetails=async (id, noredirect=false) => {
     $("<tr><td><b>"+$("#lang_phone").text()+": </b></td><td>"+org.phone+"</td></tr>").appendTo(data);
     $("<tr><td><b>"+$("#lang_email").text()+": </b></td><td>"+org.email+"</td></tr>").appendTo(data);
     $("<tr><td><b>"+$("#lang_bio").text()+": </b></td><td>"+org.bio+"</td></tr>").appendTo(data);
-    $("<tr><td><b>"+$("#lang_reputation").text()+": </b></td><td>"+org.reputation+"</td></tr>").appendTo(data);
+    $("<tr><td><b>"+$("#lang_reputation").text()+": </b></td><td><reputation-slider title=\""+org.reputation+"\" data-value=\""+org.reputation+"\"></reputation-slider></td></tr>").appendTo(data);
     $("<tr><td><b>"+$("#lang_rsaPublic").text()+": </b></td><td>"+org.rsakey.replace(/\n/g, "<br/>")+"</td></tr>").appendTo(data);
     data.appendTo(content);
 

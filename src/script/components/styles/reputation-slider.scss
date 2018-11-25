@@ -1,0 +1,33 @@
+@import "../../../style/colors.scss";
+
+.reputationSlider{
+    position: relative;
+    width: 10em;
+    height: 1.5em;
+
+    &__bar{
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 30%;
+        background: linear-gradient(to right, red 0%, yellow 40%, yellow 60%, green 100%);
+        border-radius: 3em;
+    }
+
+    &__pointer{
+        position: relative;
+        left: -50%;
+        width: 0;
+        height: 0;
+        border-top: 10px solid black;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+
+        &__container{
+            position: absolute;
+            top: 25%;
+            left: 0;
+        }
+    }
+}
