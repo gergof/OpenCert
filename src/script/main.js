@@ -37,3 +37,7 @@ export const groups=mod_groups;
 //news.js
 import * as mod_news from "./news.js";
 export const news=mod_news;
+
+//organizations.js
+import * as mod_organizations from "./organizations.js";
+export const organizations=mod_organizations;

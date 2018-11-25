@@ -72,7 +72,7 @@ const Modal=({title, content, fields, buttons}) => {
             });
         }
 
-        $("<h2>"+title+"</h2><hr/><p>"+(content||"")+"</p>").appendTo(body);
+        $("<h2>"+title+"</h2><hr/><div>"+(content||"")+"</div>").appendTo(body);
         fieldlist.appendTo(body);
         buttonlist.appendTo(body);
 
