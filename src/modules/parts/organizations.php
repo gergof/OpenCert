@@ -60,6 +60,31 @@ if(isset($_GET["org_members"])){
     die();
 }
 
+if(isset($_POST["set_reputation"]) && isset($_POST["reputation"])){
+    if(!hasGroup(array("admin", "manager"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    if($_POST["reputation"]<0 || $_POST["reputation"]>100){
+        \LightFrame\Utils\setError(209);
+        die("error");
+    }
+
+    $sql=$db->prepare("UPDATE organizations SET reputation=:rep WHERE id=:id");
+    $sql->execute(array(":rep"=>$_POST["reputation"], ":id"=>$_POST["set_reputation"]));
+    $res=$sql->rowCount();
+
+    if($res<1){
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+    else{
+        \LightFrame\Utils\setMessage(12);
+        die("ok");
+    }
+}
+
 ?>
 
 <span style="display: none" id="lang_name"><?php echo $lang["name"] ?></span>
@@ -79,6 +104,10 @@ if(isset($_GET["org_members"])){
 <span style="display: none" id="lang_manager"><?php echo $lang["manager"] ?></span>
 <span style="display: none" id="lang_admin"><?php echo $lang["admin"] ?></span>
 <span style="display: none" id="lang_close"><?php echo $lang["close"] ?></span>
+<span style="display: none" id="lang_changeReputation"><?php echo $lang["change_reputation"] ?></span>
+<span style="display: none" id="lang_changeReputationTooltip"><?php echo $lang["change_reputation_tooltip"] ?></span>
+<span style="display: none" id="lang_save"><?php echo $lang["save"] ?></span>
+<span style="display: none" id="lang_cancel"><?php echo $lang["cancel"] ?></span>
 <fancy-table id="orgstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="100" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["name"] ?>", "<?php echo $lang["country"] ?>", "<?php echo $lang["reputation"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "name", "country", "reputation", "operations"]' data-content="[]" data-requestpage="ui.organizations.getOrgs"></fancy-table>
 <?php if(isset($sub) && is_numeric($sub)): ?>
 <script>

@@ -25,7 +25,7 @@ export const getOrgs=(event) => {
         orgs=orgs.map((org) => {
             return Object.assign(org, {
                 reputation: "<reputation-slider title=\""+org.reputation+"\" data-value=\""+org.reputation+"\"></reputation-slider>",
-                operations: "<i class=\"fa fa-window-maximize\" style=\"margin: 0 0.3em\" onclick=\"ui.organizations.openDetails("+org.id+")\"></i>"
+                operations: "<i class=\"fa fa-window-maximize\" style=\"margin: 0 0.3em\" onclick=\"ui.organizations.openDetails("+org.id+")\"></i><i class=\"fa fa-star-half-alt\" style=\"margin: 0 0.3em\" onclick=\"ui.organizations.changeReputation("+org.id+")\"></i>"
             });
         });
 
@@ -126,5 +126,51 @@ export const openDetails=async (id, noredirect=false) => {
         ]
     }).then(() => {
         window.history.pushState({site: "organizations"}, null, "../organizations");
+    });
+};
+
+export const changeReputation=async (id) => {
+    var org=await getOrg(id);
+
+    Modal({
+        title: $("#lang_changeReputation").text(),
+        content: $("#lang_changeReputationTooltip").text(),
+        fields: [
+            {
+                id: "reputation",
+                name: $("#lang_reputation").text(),
+                type: "range",
+                min: 0,
+                max: 100,
+                value: org.reputation
+            }
+        ],
+        buttons: [
+            {
+                id: "ok",
+                action: "submit",
+                class: "button button__green",
+                icon: "check",
+                label: $("#lang_save").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__red",
+                icon: "times",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "./modules/loader.php?load=organizations",
+                method: "POST",
+                data: {set_reputation: id, reputation: resp.formdata.reputation}
+            }).then(() => {
+                loadMessages();
+                getOrgs();
+            });
+        }
     });
 };
