@@ -116,6 +116,7 @@ CREATE TABLE `exams`(
     `objectives` text NOT NULL default '',
     `specifications` text NOT NULL default '',
     `needed_points` int(4) UNSIGNED NOT NULL default 0,
+    `timelimit` int(4) UNSIGNED NOT NULL default 0, /* in seconds; 0=no time limit */
     `stage` tinyint(1) UNSIGNED NOT NULL default 0, /* 0:draft; 1:waiting admission; 2:active; 3:retired */
     PRIMARY KEY(`id`)
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
@@ -123,7 +124,7 @@ CREATE TABLE `exams`(
 CREATE TABLE `exam_tasks`(
     `id` int(4) UNSIGNED NOT NULL auto_increment,
     `name` varchar(65) NOT NULL default '',
-    `timelimit` int(4) UNSIGNED NOT NULL default 0, /* in seconds; 0=no time limit */
+    `description` text NOT NULL default '',
     `points` int(4) UNSIGNED NOT NULL default 1,
     `exam` int(4) UNSIGNED NOT NULL default 0,
     PRIMARY KEY(`id`),
@@ -132,11 +133,13 @@ CREATE TABLE `exam_tasks`(
 
 CREATE TABLE `exam_task_variants`(
     `id` int(4) UNSIGNED NOT NULL auto_increment,
+    `task` int(4) UNSIGNED NOT NULL default 0,
     `instructions` text NOT NULL default '',
     `file` varchar(64) default NULL,
     `correct` text NOT NULL default '',
     `correct_file` varchar(64) default NULL,
     PRIMARY KEY(`id`),
+    FOREIGN KEY(`task`) REFERENCES exam_tasks(`id`) ON DELETE CASCADE,
     FOREIGN KEY(`file`) REFERENCES files(`token`) ON DELETE SET NULL,
     FOREIGN KEY(`correct_file`) REFERENCES files(`token`) ON DELETE SET NULL
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
