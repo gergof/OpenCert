@@ -183,8 +183,6 @@ export const openDetails=async (id, noredirect=false) => {
     $("<tr><td><b>"+$("#lang_stage").text()+":</b></td><td>"+stage+"</td></tr>").appendTo(data);
     data.appendTo(content);
 
-    $("<button type=\"button\" onclick=\"ui.exams.openTasks('"+id+"')\" class=\"button\"><i class=\"fa fa-tasks\"></i> "+$("#lang_openTasks").text()+"</button>").appendTo(content);
-
     if(!noredirect){
         window.history.pushState({site: "exams/"+id}, null, "./exams/"+id);
     }
@@ -193,6 +191,14 @@ export const openDetails=async (id, noredirect=false) => {
         title: exam.name,
         content: content.html(),
         buttons: [
+            {
+                id: "openTasks",
+                action: () => {
+                    openTasks(id);
+                },
+                class: "button",
+                label: $("#lang_openTasks").text()
+            },
             {
                 id: "close",
                 action: "close",
@@ -396,14 +402,18 @@ export const edit=async (id) => {
     });
 };
 
-export const openTasks=async (examId) => {
-    var tasks=await getTasks(examId);
+export const openTasks=(examId) => {
+    const updateTable=async () => {
+        var tasks=await getTasks(examId);
 
-    tasks=tasks.map((t) => {
-        return Object.assign(t, {
-            operations: "<i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openVariants('"+t.id+"')\"></i>"
+        tasks=tasks.map((t) => {
+            return Object.assign(t, {
+                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.editTask("+t.id+")\"></i><i class=\"fa fa-delete\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteTask("+t.id+")\"></i><i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openVariants("+t.id+")\"></i>"
+            });
         });
-    });
+
+        $("#tasks_table").attr("data-content", JSON.stringify(tasks));
+    }
 
     var html="<fancy-table id=\"tasks_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_name").text()+"\", \""+$("#lang_description").text()+"\", \""+$("#lang_points").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"name\", \"description\", \"points\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
 
@@ -411,6 +421,15 @@ export const openTasks=async (examId) => {
         title: $("#lang_tasks").text(),
         content: html,
         buttons: [
+            {
+                id: "newTask",
+                action: () => {
+                    newTask(examId, updateTable);
+                },
+                class: "button",
+                icon: "plus",
+                label: $("#lang_newTask").text()
+            },
             {
                 id: "ok",
                 action: "close",
@@ -420,11 +439,63 @@ export const openTasks=async (examId) => {
         ]
     });
 
-    $("#tasks_table").attr("data-content", JSON.stringify(tasks));
+    updateTable();
 };
 
-export const openVariants=async (taskId) => {
-    const updateTable=() => {
+export const newTask=(examId, callback) => {
+    Modal({
+        title: $("#lang_newTask").text(),
+        fields: [
+            {
+                id: "name",
+                name: $("#lang_name").text()
+            },
+            {
+                id: "description",
+                name: $("#lang_description").text(),
+                type: "textarea"
+            },
+            {
+                id: "points",
+                name: $("#lang_points").text(),
+                type: "number",
+                min: "1"
+            }
+        ],
+        buttons: [
+            {
+                id: "ok",
+                action: "submit",
+                class: "button button__green",
+                icon: "check",
+                label: $("#lang_add").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__red",
+                icon: "times",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "./modules/loader.php?load=exams",
+                method: "POST",
+                data: {new_task: JSON.stringify(Object.assign(resp.formdata, {exam: examId}))}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
+};
+
+export const openVariants=(taskId) => {
+    const updateTable=async () => {
         var variants=await getVariants(taskId);
 
         variants=variants.map((v) => {
@@ -442,20 +513,23 @@ export const openVariants=async (taskId) => {
     var table="<fancy-table id=\"variants_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_instructions").text()+"\", \""+$("#lang_fileAssigned").text()+"\", \""+$("#lang_correct").text()+"\", \""+$("#lang_fileCorrect").text()+"\"]' data-order='[\"id\", \"instructions\", \"file_assigned\", \"correct\", \"file_correct\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
     content.html(table);
 
-    var button=$("<button type=\"button\" class=\"button\"><i class=\"fa fa-plus\"></i> "+$("#lang_newVariant").text()+"</button>");
-    button.on("click", () => {
-        ui.exams.newVariant(taskId, updateTable);
-    });
-    button.appendTo(content);
-
     Modal({
         title: $("#lang_variants").text(),
         content: content.html(),
         buttons: [
             {
+                id: "newVariant",
+                action: () => {
+                    newVariant(taskId, updateTable)
+                },
+                class: "button",
+                icon: "plus",
+                label: $("#lang_newVariant").text()
+            },
+            {
                 id: "ok",
                 action: "close",
-                class: "button"
+                class: "button",
                 label: $("#lang_close").text()
             }
         ]
@@ -471,7 +545,7 @@ export const newVariant=async (taskId, callback) => {
 
     var taskDetails=$("<table></table>");
     $("<tr><td><b>"+$("#lang_name").text()+"</b></td><td>"+task.name+"</td></tr>").appendTo(taskDetails);
-    $("<tr><td><b>"+$("#lang_description").text()+"</b></td><td>"+task.description+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_description").text()+"</b></td><td>"+marked(task.description)+"</td></tr>").appendTo(taskDetails);
     $("<tr><td><b>"+$("#lang_points").text()+"</b></td><td>"+task.points+"</td></tr>").appendTo(taskDetails);
     taskDetails.appendTo(content);
 
