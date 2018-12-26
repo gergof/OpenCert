@@ -99,6 +99,60 @@ export const getExam=(id) => {
     });
 };
 
+export const getTasks=(examId) => {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: "./modules/loader.php",
+            method: "GET",
+            data: {load: "exams", tasks: examId}
+        }).then((resp) => {
+            loadMessages();
+            if(resp!="error"){
+                resolve(JSON.parse(resp));
+            }
+            else{
+                reject();
+            }
+        });
+    });
+};
+
+export const getTask=(taskId) => {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: "./modules/loader.php",
+            method: "GET",
+            data: {load: "exams", task: taskId}
+        }).then((resp) => {
+            loadMessages();
+            if(resp!="error"){
+                resolve(JSON.parse(resp));
+            }
+            else{
+                reject();
+            }
+        });
+    });
+};
+
+export const getVariants=(taskId) => {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: "./modules/loader.php",
+            method: "GET",
+            data: {load: "exams", variants: taskId}
+        }).then((resp) => {
+            loadMessages();
+            if(resp!="error"){
+                resolve(JSON.parse(resp));
+            }
+            else{
+                reject();
+            }
+        });
+    });
+};
+
 export const openDetails=async (id, noredirect=false) => {
     var content=$("<div></div>");
 
@@ -128,6 +182,8 @@ export const openDetails=async (id, noredirect=false) => {
     $("<tr><td><b>"+$("#lang_timelimit").text()+":</b></td><td>"+exam.timelimit+"</td></tr>").appendTo(data);
     $("<tr><td><b>"+$("#lang_stage").text()+":</b></td><td>"+stage+"</td></tr>").appendTo(data);
     data.appendTo(content);
+
+    $("<button type=\"button\" onclick=\"ui.exams.openTasks('"+id+"')\" class=\"button\"><i class=\"fa fa-tasks\"></i> "+$("#lang_openTasks").text()+"</button>").appendTo(content);
 
     if(!noredirect){
         window.history.pushState({site: "exams/"+id}, null, "./exams/"+id);
@@ -340,6 +396,136 @@ export const edit=async (id) => {
     });
 };
 
-export const openTasks=(id) => {
-    
+export const openTasks=async (examId) => {
+    var tasks=await getTasks(examId);
+
+    tasks=tasks.map((t) => {
+        return Object.assign(t, {
+            operations: "<i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openVariants('"+t.id+"')\"></i>"
+        });
+    });
+
+    var html="<fancy-table id=\"tasks_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_name").text()+"\", \""+$("#lang_description").text()+"\", \""+$("#lang_points").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"name\", \"description\", \"points\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
+
+    Modal({
+        title: $("#lang_tasks").text(),
+        content: html,
+        buttons: [
+            {
+                id: "ok",
+                action: "close",
+                class: "button",
+                label: $("#lang_close").text()
+            }
+        ]
+    });
+
+    $("#tasks_table").attr("data-content", JSON.stringify(tasks));
+};
+
+export const openVariants=async (taskId) => {
+    const updateTable=() => {
+        var variants=await getVariants(taskId);
+
+        variants=variants.map((v) => {
+            return Object.assign(v, {
+                operations: "<i class=\"fa fa-edit\" stlye=\"margin: 0 0.3em\" onclick=\"ui.exams.editVariant('"+v.id+"')\"></i><i class=\"fa fa-trahs\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteVariant('"+v.id+"')\"></i>"
+            });
+        });
+
+        $("#variants_table").attr("data-content", JSON.stringify(variants));
+    }
+
+
+    var content=$("<div></div>");
+
+    var table="<fancy-table id=\"variants_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_instructions").text()+"\", \""+$("#lang_fileAssigned").text()+"\", \""+$("#lang_correct").text()+"\", \""+$("#lang_fileCorrect").text()+"\"]' data-order='[\"id\", \"instructions\", \"file_assigned\", \"correct\", \"file_correct\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
+    content.html(table);
+
+    var button=$("<button type=\"button\" class=\"button\"><i class=\"fa fa-plus\"></i> "+$("#lang_newVariant").text()+"</button>");
+    button.on("click", () => {
+        ui.exams.newVariant(taskId, updateTable);
+    });
+    button.appendTo(content);
+
+    Modal({
+        title: $("#lang_variants").text(),
+        content: content.html(),
+        buttons: [
+            {
+                id: "ok",
+                action: "close",
+                class: "button"
+                label: $("#lang_close").text()
+            }
+        ]
+    });
+
+    updateTable();
+};
+
+export const newVariant=async (taskId, callback) => {
+    var task=await getTask(taskId);
+
+    var content=$("<div></div>");
+
+    var taskDetails=$("<table></table>");
+    $("<tr><td><b>"+$("#lang_name").text()+"</b></td><td>"+task.name+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_description").text()+"</b></td><td>"+task.description+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_points").text()+"</b></td><td>"+task.points+"</td></tr>").appendTo(taskDetails);
+    taskDetails.appendTo(content);
+
+    Modal({
+        title: $("#lang_newVariant").text(),
+        content: content.html(),
+        fields: [
+            {
+                id: "instructions",
+                name: $("#lang_instructions").text(),
+                type: "textarea"
+            },
+            {
+                id: "file",
+                name: $("#lang_fileAssigned").text()
+            },
+            {
+                id: "correct",
+                name: $("#lang_correct").text(),
+                type: "textarea"
+            },
+            {
+                id: "correct_file",
+                name: $("#lang_fileCorrect").text()
+            }
+        ],
+        buttons: [
+            {
+                id: "ok",
+                action: "submit",
+                class: "button button__green",
+                icon: "check",
+                label: $("#lang_add").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__red",
+                icon: "times",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "./modules/loader.php?load=exams",
+                method: "POST",
+                data: {new_variant: JSON.stringify(Object.assign(resp.formdata, {task: taskId}))}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
 };

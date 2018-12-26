@@ -135,6 +135,78 @@ if(isset($_POST["edit"]) && isset($_POST["data"])){
     }
 }
 
+if(isset($_GET["tasks"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    $sql=$db->prepare("SELECT id, name, description, points FROM exam_tasks WHERE exam=:id");
+    $sql->execute(array(":id"=>$_GET["tasks"]));
+    $res=$sql->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($res);
+    die();
+}
+
+if(isset($_GET["task"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    $sql=$db->prepare("SELECT COUNT(id) AS count, id, name, description, points FROM exam_tasks WHERE id=:id");
+    $sql->execute(array(":id"=>$_GET["task"]));
+    $res=$sql->fetch(PDO::FETCH_ASSOC);
+
+    if($res["count"]<=1){
+        \LightFrame\Utils\setError(204);
+        die("error");
+    }
+
+    echo json_encode($res);
+    die();
+}
+
+if(isset($_GET["variants"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+    }
+
+    $sql=$db->prepare("SELECT id, instructions, file, correct, correct_file FROM exam_task_variants WHERE task=:id");
+    $sql->execute(array(":id"=>$_GET["variants"]));
+    $res=$sql->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($res);
+    die();
+}
+
+if(isset($_POST["new_variant"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+    }
+
+    $data=json_decode($_POST["new_variant"], true);
+
+    if(!(isset($data["instructions"]) && isset($data["file"]) && isset($data["correct"]) && isset($data["correct_file"]) && isset($data["task"]))){
+        \LightFrame\Utils\setError(207);
+        die("error");
+    }
+
+    $sql=$db->prepare("INSERT INTO exam_task_variants (task, instructions, file, correct, correct_file) VALUES (:task, :instructions, :file, :correct, :correct_file)");
+    $sql->execute(array(":task"=>$data["task"], ":instructions"=>$data["instructions"], ":file"=>$data["file"], ":correct"=>$data["correct"] ":correct_file"=>$data["correct_file"]));
+    $res=$sql->rowCount();
+
+    if($res==1){
+        \LightFrame\Utils\setMessage(16);
+        die("ok");
+    }
+    else{
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+}
+
 ?>
 
 <span style="display: none" id="lang_id"><?php echo $lang["id"] ?></span>
@@ -157,6 +229,15 @@ if(isset($_POST["edit"]) && isset($_POST["data"])){
 <span style="display: none" id="lang_deleteSure"><?php echo $lang["delete_sure"] ?></span>
 <span style="display: none" id="lang_close"><?php echo $lang["close"] ?></span>
 <span style="display: none" id="lang_edit"><?php echo $lang["edit"] ?></span>
+<span style="display: none" id="lang_openTasks"><?php echo $lang["open_tasks"] ?></span>
+<span style="display: none" id="lang_tasks"><?php echo $lang["tasks"] ?></span>
+<span style="display: none" id="lang_variants"><?php echo $lang["variants"] ?></span>
+<span style="display: none" id="lang_points"><?php echo $lang["points"] ?></span>
+<span style="display: none" id="lang_instructions"><?php echo $lang["instructions"] ?></span>
+<span style="display: none" id="lang_fileAssigned"><?php echo $lang["file_assigned"] ?></span>
+<span style="display: none" id="lang_fileCorrect"><?php echo $lang["file_correct"] ?></span>
+<span style="display: none" id="lang_correct"><?php echo $lang["correct"] ?></span>
+<span style="display: none" id="lang_newVariant"><?php echo $lang["new_variant"] ?></span>
 <fancy-table id="examstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="20" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["name"] ?>", "<?php echo $lang["stage"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "name", "stage", "operations"]' data-content="[]" data-requestpage="ui.exams.getExams"></fancy-table>
 <br style="line-height: 5em"/>
 <?php if(hasGroup("admin", "exam_editor")): ?>
