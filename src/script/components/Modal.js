@@ -9,6 +9,20 @@ const Modal=({title, content, fields, buttons}) => {
         var root=$("<div class=\"modal\"></div>");
         var body=$("<div class=\"modal__content\"></div>");
 
+        var header=$("<div></div>");
+        header.html("<h2>"+title+"</h2><hr/>");
+        var closeButton=$("<div class=\"modal__cross\"></div>");
+        closeButton.on("click", function(){
+            $(this).parent("div").parent("div").parent("div").fadeOut(function(){
+                $(this).remove();
+            });
+
+            resolve({button: "x"});
+        });
+        closeButton.appendTo(header);
+
+        var cont=$("<div>"+(content||"")+"</div>");
+
         var fieldlist=$("<div class=\"modal__content__fieldlist\"></div>");
         if(fields){
             fields.forEach((field) => {
@@ -79,7 +93,8 @@ const Modal=({title, content, fields, buttons}) => {
             });
         }
 
-        $("<h2>"+title+"</h2><hr/><div>"+(content||"")+"</div>").appendTo(body);
+        header.appendTo(body);
+        cont.appendTo(body);
         fieldlist.appendTo(body);
         buttonlist.appendTo(body);
 

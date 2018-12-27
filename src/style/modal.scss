@@ -30,6 +30,18 @@
             grid-row-gap: 0.5em;
         }
     }
+
+    &__cross{
+        position: absolute;
+        top: 1em;
+        right: 1em;
+
+        &::after{
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            content: '\f00d'
+        }
+    }
 }
 
 @keyframes fadein{
