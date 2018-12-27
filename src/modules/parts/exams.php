@@ -159,7 +159,7 @@ if(isset($_GET["task"])){
     $sql->execute(array(":id"=>$_GET["task"]));
     $res=$sql->fetch(PDO::FETCH_ASSOC);
 
-    if($res["count"]<=1){
+    if($res["count"]<1){
         \LightFrame\Utils\setError(204);
         die("error");
     }
@@ -182,7 +182,7 @@ if(isset($_POST["new_task"])){
     }
 
     $sql=$db->prepare("INSERT INTO exam_tasks (name, description, points, exam) VALUES (:name, :desc, :points, :exam)");
-    $sql->execute(array(":name"=>$data["name"], ":desc"=>$data["desc"], ":points"=>$data["points"], ":exam"=>$data["exam"]));
+    $sql->execute(array(":name"=>$data["name"], ":desc"=>$data["description"], ":points"=>$data["points"], ":exam"=>$data["exam"]));
     $res=$sql->rowCount();
 
     if($res==1){
@@ -221,7 +221,7 @@ if(isset($_POST["new_variant"])){
     }
 
     $sql=$db->prepare("INSERT INTO exam_task_variants (task, instructions, file, correct, correct_file) VALUES (:task, :instructions, :file, :correct, :correct_file)");
-    $sql->execute(array(":task"=>$data["task"], ":instructions"=>$data["instructions"], ":file"=>$data["file"], ":correct"=>$data["correct"], ":correct_file"=>$data["correct_file"]));
+    $sql->execute(array(":task"=>$data["task"], ":instructions"=>$data["instructions"], ":file"=>$data["file"]!=""?$data["file"]:null, ":correct"=>$data["correct"], ":correct_file"=>$data["correct_file"]!=""?$data["correct_file"]:null));
     $res=$sql->rowCount();
 
     if($res==1){

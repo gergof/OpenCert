@@ -41,7 +41,7 @@ export const getExams=(event) => {
             }
             return Object.assign(exam, {
                 stage: newstage,
-                operations: "<i class=\"fa fa-window-maximize\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openDetails("+exam.id+")\"></i><i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.edit("+exam.id+")\"></i><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.remove("+exam.id+")\"></i><i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openTasks("+exam.id+")\"></i>"
+                operations: "<i class=\"fa fa-window-maximize\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openDetails("+exam.id+")\"></i><i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.edit("+exam.id+")\"></i><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.remove("+exam.id+")\"></i>"
             });
         });
 
@@ -481,7 +481,7 @@ export const newTask=(examId, callback) => {
     }).then((resp) => {
         if(resp.button=="ok"){
             $.ajax({
-                url: "./modules/loader.php?load=exams",
+                url: "../modules/loader.php?load=exams",
                 method: "POST",
                 data: {new_task: JSON.stringify(Object.assign(resp.formdata, {exam: examId}))}
             }).then((resp) => {
@@ -591,7 +591,7 @@ export const newVariant=async (taskId, callback) => {
     }).then((resp) => {
         if(resp.button=="ok"){
             $.ajax({
-                url: "./modules/loader.php?load=exams",
+                url: "../modules/loader.php?load=exams",
                 method: "POST",
                 data: {new_variant: JSON.stringify(Object.assign(resp.formdata, {task: taskId}))}
             }).then((resp) => {

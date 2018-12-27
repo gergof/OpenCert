@@ -6,10 +6,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run dist",
+    "start": "npm run pack && npm run deploy",
     "deploy": "node deploy",
-    "pack": "webpack",
-    "dist": "npm run pack && npm run deploy"
+    "pack": "webpack"
   },
   "repository": {
     "type": "git",
