@@ -195,6 +195,53 @@ if(isset($_POST["new_task"])){
     }
 }
 
+if(isset($_POST["edit_task"])){
+    if(!hasGroup(array("admin", "exam_editor"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    $data=json_decode($_POST["edit_task"], true);
+
+    if(!(isset($data["id"]) && isset($data["name"]) && isset($data["description"]) && isset($data["points"]))){
+        \LightFrame\Utils\setError(207);
+        die("error");
+    }
+
+    $sql=$db->prepare("UPDATE exam_tasks SET name=:name, description=:desc, points=:points WHERE id=:id");
+    $sql->execute(array(":name"=>$data["name"], ":desc"=>$data["description"], ":points"=>$data["points"], ":id"=>$data["id"]));
+    $res=$sql->rowCount();
+
+    if($res==1){
+        \LightFrame\Utils\setMessage(18);
+        die("ok");
+    }
+    else{
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+}
+
+if(isset($_POST["delete_task"])){
+    if(!hasGroup(array("admin", "exam_editor"))){
+        \LightFrame\Utils\setError(403);
+        die("restricted");
+    }
+
+    $sql=$db->prepare("DELETE FROM exam_tasks WHERE id=:id");
+    $sql->execute(array(":id"=>$_POST["delete_task"]));
+    $res=$sql->rowCount();
+
+    if($res<1){
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+    else{
+        \LightFrame\Utils\setMessage(19);
+        die("ok");
+    }
+}
+
 if(isset($_GET["variants"])){
     if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
         \LightFrame\Utils\setError(403);
@@ -266,6 +313,7 @@ if(isset($_POST["new_variant"])){
 <span style="display: none" id="lang_correct"><?php echo $lang["correct"] ?></span>
 <span style="display: none" id="lang_newVariant"><?php echo $lang["new_variant"] ?></span>
 <span style="display: none" id="lang_newTask"><?php echo $lang["new_task"] ?></span>
+<span style="display: none" id="lang_operations"><?php echo $lang["operations"] ?></span>
 <fancy-table id="examstable" data-countlabel="<?php echo $lang["count"].": " ?>" data-count="0" data-perpage="20" data-header='["<?php echo $lang["id"] ?>", "<?php echo $lang["name"] ?>", "<?php echo $lang["stage"] ?>", "<?php echo $lang["operations"] ?>"]' data-order='["id", "name", "stage", "operations"]' data-content="[]" data-requestpage="ui.exams.getExams"></fancy-table>
 <br style="line-height: 5em"/>
 <?php if(hasGroup("admin", "exam_editor")): ?>

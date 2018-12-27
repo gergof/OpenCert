@@ -408,11 +408,22 @@ export const openTasks=(examId) => {
 
         tasks=tasks.map((t) => {
             return Object.assign(t, {
-                operations: "<i class=\"fa fa-edit\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.editTask("+t.id+")\"></i><i class=\"fa fa-delete\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteTask("+t.id+")\"></i><i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openVariants("+t.id+")\"></i>"
+                operations: "<i class=\"fa fa-edit task_button_edit\" style=\"margin: 0 0.3em\" data-id=\""+t.id+"\"></i><i class=\"fa fa-trash task_button_delete\" style=\"margin: 0 0.3em\" data-id=\""+t.id+"\"></i><i class=\"fa fa-tasks\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.openVariants("+t.id+")\"></i>"
             });
         });
 
         $("#tasks_table").attr("data-content", JSON.stringify(tasks));
+
+        //add handlers to buttons that need a callback as well. Clear the old handlers before
+        document.getElementById("tasks_table").$("#table_content").children(".task_button_edit").off("click");
+        document.getElementById("tasks_table").$("#table_content").on("click", ".task_button_edit", function(){
+            console.log($(this));
+            editTask($(this).data("id"), updateTable);
+        });
+        document.getElementById("tasks_table").$("#table_content").children(".task_button_delete").off("click");
+        document.getElementById("tasks_table").$("#table_content").on("click", ".task_button_delete", function(){
+            deleteTask($(this).data("id"), updateTable);
+        });
     }
 
     var html="<fancy-table id=\"tasks_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_name").text()+"\", \""+$("#lang_description").text()+"\", \""+$("#lang_points").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"name\", \"description\", \"points\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
@@ -494,13 +505,104 @@ export const newTask=(examId, callback) => {
     });
 };
 
+export const editTask=async (taskId, callback) => {
+    var task=await getTask(taskId);
+
+    Modal({
+        title: $("#lang_edit").text(),
+        fields: [
+            {
+                id: "name",
+                name: $("#lang_name").text(),
+                value: task.name
+            },
+            {
+                id: "description",
+                name: $("#lang_description").text(),
+                type: "textarea",
+                value: task.description
+            },
+            {
+                id: "points",
+                name: $("#lang_points").text(),
+                type: "number",
+                min: "1",
+                value: task.points
+            }
+        ],
+        buttons: [
+            {
+                id: "ok",
+                action: "submit",
+                class: "button button__green",
+                icon: "save",
+                label: $("#lang_save").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__red",
+                icon: "times",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "../modules/loader.php?load=exams",
+                method: "POST",
+                data: {edit_task: JSON.stringify(Object.assign(resp.formdata, {id: taskId}))}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
+};
+
+export const deleteTask=async (taskId, callback) => {
+    Modal({
+        title: $("#lang_deleteSure").text(),
+        buttons: [
+            {
+                id: "delete",
+                action: "close",
+                class: "button button__red",
+                icon: "exclamation-triangle",
+                label: $("#lang_delete").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__green",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="delete"){
+            $.ajax({
+                url: "../modules/loader.php?load=exams",
+                method: "POST",
+                data: {delete_task: taskId}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
+};
+
 export const openVariants=(taskId) => {
     const updateTable=async () => {
         var variants=await getVariants(taskId);
 
         variants=variants.map((v) => {
             return Object.assign(v, {
-                operations: "<i class=\"fa fa-edit\" stlye=\"margin: 0 0.3em\" onclick=\"ui.exams.editVariant('"+v.id+"')\"></i><i class=\"fa fa-trahs\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteVariant('"+v.id+"')\"></i>"
+                operations: "<i class=\"fa fa-edit\" stlye=\"margin: 0 0.3em\" onclick=\"ui.exams.editVariant('"+v.id+"')\"></i><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteVariant('"+v.id+"')\"></i>"
             });
         });
 
@@ -510,7 +612,7 @@ export const openVariants=(taskId) => {
 
     var content=$("<div></div>");
 
-    var table="<fancy-table id=\"variants_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_instructions").text()+"\", \""+$("#lang_fileAssigned").text()+"\", \""+$("#lang_correct").text()+"\", \""+$("#lang_fileCorrect").text()+"\"]' data-order='[\"id\", \"instructions\", \"file_assigned\", \"correct\", \"file_correct\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
+    var table="<fancy-table id=\"variants_table\" data-header='[\""+$("#lang_id").text()+"\", \""+$("#lang_instructions").text()+"\", \""+$("#lang_fileAssigned").text()+"\", \""+$("#lang_correct").text()+"\", \""+$("#lang_fileCorrect").text()+"\", \""+$("#lang_operations").text()+"\"]' data-order='[\"id\", \"instructions\", \"file_assigned\", \"correct\", \"file_correct\", \"operations\"]' data-content=\"[]\" data-nofooter=\"true\"></fancy-table>";
     content.html(table);
 
     Modal({
@@ -544,9 +646,9 @@ export const newVariant=async (taskId, callback) => {
     var content=$("<div></div>");
 
     var taskDetails=$("<table></table>");
-    $("<tr><td><b>"+$("#lang_name").text()+"</b></td><td>"+task.name+"</td></tr>").appendTo(taskDetails);
-    $("<tr><td><b>"+$("#lang_description").text()+"</b></td><td>"+marked(task.description)+"</td></tr>").appendTo(taskDetails);
-    $("<tr><td><b>"+$("#lang_points").text()+"</b></td><td>"+task.points+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_name").text()+": </b></td><td>"+task.name+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_description").text()+": </b></td><td>"+marked(task.description)+"</td></tr>").appendTo(taskDetails);
+    $("<tr><td><b>"+$("#lang_points").text()+": </b></td><td>"+task.points+"</td></tr>").appendTo(taskDetails);
     taskDetails.appendTo(content);
 
     Modal({
