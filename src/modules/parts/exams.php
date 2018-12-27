@@ -255,6 +255,24 @@ if(isset($_GET["variants"])){
     die();
 }
 
+if(isset($_GET["variant"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+    }
+
+    $sql=$db->prepare("SELECT COUNT(id) AS count, id, instructions, file, correct, correct_file FROM exam_task_variants WHERE id=:id");
+    $sql->execute(array(":id"=>$_GET["variant"]));
+    $res=$sql->fetch(PDO::FETCH_ASSOC);
+
+    if($res["count"]<1){
+        \LightFrame\Utils\setError(204);
+        die("error");
+    }
+    
+    echo json_encode($res);
+    die();
+}
+
 if(isset($_POST["new_variant"])){
     if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
         \LightFrame\Utils\setError(403);
@@ -273,6 +291,51 @@ if(isset($_POST["new_variant"])){
 
     if($res==1){
         \LightFrame\Utils\setMessage(16);
+        die("ok");
+    }
+    else{
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+}
+
+if(isset($_POST["edit_variant"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+    }
+
+    $data=json_decode($_POST["edit_variant"], true);
+
+    if(!(isset($data["id"]) && isset($data["instructions"]) && isset($data["file"]) && isset($data["correct"]) && isset($data["correct_file"]))){
+        \LightFrame\Utils\setError(207);
+        die("error");
+    }
+
+    $sql=$db->prepare("UPDATE exam_task_variants SET instructions=:instr, file=:file, correct=:correct, correct_file=:correct_file WHERE id=:id");
+    $sql->execute(array(":instr"=>$data["instructions"], ":file"=>$data["file"]!=""?$data["file"]:null, ":correct"=>$data["correct"], ":correct_file"=>$data["correct_file"]!=""?$data["correct_file"]:null, ":id"=>$data["id"]));
+    $res=$sql->rowCount();
+
+    if($res==1){
+        \LightFrame\Utils\setMessage(20);
+        die("ok");
+    }
+    else{
+        \LightFrame\Utils\setError(500);
+        die("error");
+    }
+}
+
+if(isset($_POST["delete_variant"])){
+    if(!hasGroup(array("admin", "exam_editor", "variant_editor"))){
+        \LightFrame\Utils\setError(403);
+    }
+
+    $sql=$db->prepare("DELETE FROM exam_task_variants WHERE id=:id");
+    $sql->execute(array(":id"=>$_POST["delete_variant"]));
+    $res=$sql->rowCount();
+
+    if($res==1){
+        \LightFrame\Utils\setMessage(21);
         die("ok");
     }
     else{

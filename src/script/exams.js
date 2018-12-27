@@ -153,6 +153,24 @@ export const getVariants=(taskId) => {
     });
 };
 
+export const getVariant=(variantId) => {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: "./modules/loader.php",
+            method: "GET",
+            data: {load: "exams", variant: variantId}
+        }).then((resp) => {
+            loadMessages();
+            if(resp!="error"){
+                resolve(JSON.parse(resp));
+            }
+            else{
+                reject();
+            }
+        });
+    });
+};
+
 export const openDetails=async (id, noredirect=false) => {
     var content=$("<div></div>");
 
@@ -415,12 +433,10 @@ export const openTasks=(examId) => {
         $("#tasks_table").attr("data-content", JSON.stringify(tasks));
 
         //add handlers to buttons that need a callback as well. Clear the old handlers before
-        document.getElementById("tasks_table").$("#table_content").children(".task_button_edit").off("click");
+        document.getElementById("tasks_table").$("#table_content").off("click");
         document.getElementById("tasks_table").$("#table_content").on("click", ".task_button_edit", function(){
-            console.log($(this));
             editTask($(this).data("id"), updateTable);
         });
-        document.getElementById("tasks_table").$("#table_content").children(".task_button_delete").off("click");
         document.getElementById("tasks_table").$("#table_content").on("click", ".task_button_delete", function(){
             deleteTask($(this).data("id"), updateTable);
         });
@@ -602,11 +618,20 @@ export const openVariants=(taskId) => {
 
         variants=variants.map((v) => {
             return Object.assign(v, {
-                operations: "<i class=\"fa fa-edit\" stlye=\"margin: 0 0.3em\" onclick=\"ui.exams.editVariant('"+v.id+"')\"></i><i class=\"fa fa-trash\" style=\"margin: 0 0.3em\" onclick=\"ui.exams.deleteVariant('"+v.id+"')\"></i>"
+                operations: "<i class=\"fa fa-edit variant_button_edit\" stlye=\"margin: 0 0.3em\" data-id=\""+v.id+"\"></i><i class=\"fa fa-trash variant_button_delete\" style=\"margin: 0 0.3em\" data-id=\""+v.id+"\"></i>"
             });
         });
 
         $("#variants_table").attr("data-content", JSON.stringify(variants));
+
+        //remove old listeners plus add listeners
+        document.getElementById("variants_table").$("#table_content").off("click");
+        document.getElementById("variants_table").$("#table_content").on("click", ".variant_button_edit", function(){
+            editVariant($(this).data("id"), updateTable);
+        });
+        document.getElementById("variants_table").$("#table_content").on("click", ".variant_button_delete", function(){
+            deleteVariant($(this).data("id"), updateTable);
+        });
     }
 
 
@@ -696,6 +721,101 @@ export const newVariant=async (taskId, callback) => {
                 url: "../modules/loader.php?load=exams",
                 method: "POST",
                 data: {new_variant: JSON.stringify(Object.assign(resp.formdata, {task: taskId}))}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
+};
+
+export const editVariant=async (variantId, callback) => {
+    var variant=await getVariant(variantId);
+
+    Modal({
+        title: $("#lang_edit").text(),
+        fields: [
+            {
+                id: "instructions",
+                name: $("#lang_instructions").text(),
+                type: "textarea",
+                value: variant.instructions
+            },
+            {
+                id: "file",
+                name: $("#lang_fileAssigned").text(),
+                value: variant.file||""
+            },
+            {
+                id: "correct",
+                name: $("#lang_correct").text(),
+                type: "textarea",
+                value: variant.correct
+            },
+            {
+                id: "correct_file",
+                name: $("#lang_fileCorrect").text(),
+                value: variant.correct_file||""
+            }
+        ],
+        buttons: [
+            {
+                id: "ok",
+                action: "submit",
+                class: "button button__green",
+                icon: "save",
+                label: $("#lang_save").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__red",
+                icon: "times",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="ok"){
+            $.ajax({
+                url: "../modules/loader.php?load=exams",
+                method: "POST",
+                data: {edit_variant: JSON.stringify(Object.assign(resp.formdata, {id: variantId}))}
+            }).then((resp) => {
+                loadMessages();
+                if(resp=="ok"){
+                    callback();
+                }
+            });
+        }
+    });
+};
+
+export const deleteVariant=async (variantId, callback) => {
+    Modal({
+        title: $("#lang_deleteSure").text(),
+        buttons: [
+            {
+                id: "delete",
+                action: "close",
+                class: "button button__red",
+                icon: "exclamation-triangle",
+                label: $("#lang_delete").text()
+            },
+            {
+                id: "cancel",
+                action: "close",
+                class: "button button__green",
+                label: $("#lang_cancel").text()
+            }
+        ]
+    }).then((resp) => {
+        if(resp.button=="delete"){
+            $.ajax({
+                url: "../modules/loader.php?load=exams",
+                method: "POST",
+                data: {delete_variant: variantId}
             }).then((resp) => {
                 loadMessages();
                 if(resp=="ok"){
