@@ -55,7 +55,7 @@ if(isset($_POST["neworg"])){
     }
 
     $sql=$db->prepare("INSERT INTO organizations (name, country, region, city, address, phone, email, bio, rsakey) VALUES (:name, :country, :region, :city, :address, :phone, :email, :bio, :rsakey)");
-    $sql->execute(array(":name"=>$data["name"], ":country"=>$data["country"], ":region"=>$data["region"], ":city"=>$data["region"], ":address"=>$data["address"], ":phone"=>$data["phone"], ":email"=>$data["email"], ":bio"=>$data["bio"], ":rsakey"=>$data["rsakey"]));
+    $sql->execute(array(":name"=>$data["name"], ":country"=>$data["country"], ":region"=>$data["region"], ":city"=>$data["city"], ":address"=>$data["address"], ":phone"=>$data["phone"], ":email"=>$data["email"], ":bio"=>$data["bio"], ":rsakey"=>$data["rsakey"]));
     $res=$sql->rowCount();
     $newOrgId=$db->lastInsertId();
 
@@ -463,6 +463,6 @@ if(isset($_POST["leave"])){
     </div>
     <div>
         <?php if($org["role"]==2): ?><button type="button" class="button" onclick="ui.myorg.editOrg()"><?php echo $lang["edit"] ?></button><?php endif ?>
-        <button type="button" class="button button__red" onclick="ui.myorg.leave()"><i class="fa fa-exclamation-triangle"></i><?php echo $lang["leaveorg"] ?></button>
+        <button type="button" class="button button__red" onclick="ui.myorg.leave()"><i class="fa fa-exclamation-triangle"></i> <?php echo $lang["leaveorg"] ?></button>
     </div>
 <?php endif ?>
