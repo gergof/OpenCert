@@ -45,3 +45,7 @@ export const organizations=mod_organizations;
 //exams.js
 import * as mod_exams from "./exams.js";
 export const exams=mod_exams;
+
+//myorg.js
+import * as mod_myorg from "./myorg.js";
+export const myorg=mod_myorg;

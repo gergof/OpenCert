@@ -160,7 +160,7 @@ CREATE TABLE `organizations`(
     `email` varchar(65) NOT NULL default '',
     `bio` text NOT NULL default '',
     `rsakey` text NOT NULL default '',
-    `reputation` tinyint(1) NOT NULL default 50, /* from 0 to 100; 50 is neutral, 0 is untrusted, 100 is fully trusted */
+    `reputation` tinyint(1) NOT NULL default 10, /* from 0 to 100; 50 is neutral, 0 is untrusted, 100 is fully trusted */
     PRIMARY KEY(`id`)
 ) CHARACTER SET utf8 COLLATE utf8_general_ci;
 

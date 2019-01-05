@@ -94,11 +94,9 @@ export const register=(e) => {
         method: "POST",
         data: {register: JSON.stringify(data)}
     }).then((resp) => {
+        loadMessages();
         if(resp=="ok"){
             route("login");
-        }
-        else{
-            loadMessages();
         }
     });
 };
